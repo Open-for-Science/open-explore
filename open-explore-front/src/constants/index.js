@@ -1,0 +1,1 @@
+export const MOBILE_CLIENT_WIDTH = 576
