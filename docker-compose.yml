@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # Elasticsearch 2.3.4 with IK plugin
+  elasticsearch:
+    build:
+      context: ./elasticsearch
+      dockerfile: Dockerfile
+    container_name: open-explore-elasticsearch
+    environment:
+      - cluster.name=open-explore-cluster
+      - node.name=open-explore-node
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    networks:
+      - open-explore-network
+
+  # Java Backend (Spring Boot)
+  open-explore-console:
+    build:
+      context: ./open-explore-console
+      dockerfile: Dockerfile
+    container_name: open-explore-console
+    ports:
+      - "8088:8088"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT=9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - open-explore-network
+    restart: unless-stopped
+
+  # Vue Frontend (Nginx)
+  open-explore-front:
+    build:
+      context: ./open-explore-front
+      dockerfile: Dockerfile
+    container_name: open-explore-front
+    ports:
+      - "80:80"
+    depends_on:
+      - open-explore-console
+    networks:
+      - open-explore-network
+    restart: unless-stopped
+
+volumes:
+  es_data:
+    driver: local
+
+networks:
+  open-explore-network:
+    driver: bridge
