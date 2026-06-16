@@ -154,12 +154,15 @@
     <footer class="reader-footer">
       <p>Figures, citation network and recommended articles coming soon…</p>
     </footer>
+    <ToTop />
   </div>
 </template>
 
 <script>
 import { SearchArticleDetail } from '@/service/ArticleSerach';
+import ToTop from '@/components/ToTop.vue';
 export default {
+  components: { ToTop },
   data() {
     return {
       article: {}
@@ -185,7 +188,8 @@ export default {
 <style scoped lang="scss">
 /* 全屏沉浸式布局 */
 .fullscreen-reader {
-  min-height: 100vh;
+  height: 100%;
+  overflow: auto;
   background: linear-gradient(135deg, #f5f7fa 0%, #e4e7f1 100%);
   display: flex;
   flex-direction: column;

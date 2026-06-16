@@ -53,6 +53,7 @@
           :total="total > 10000?10000:total">
         </base-pagination>
       </div>
+      <ToTop />
     </div>
   </div>
 </template>
@@ -60,10 +61,11 @@
 <script>
 import {AggsItemV,ReadableItem} from '@zkwq/business'
 import { SearchArticle,SearchArticleAgg } from '@/service/ArticleSerach'
+import ToTop from '@/components/ToTop.vue'
 
 export default {
   components:{
-    AggsItemV,ReadableItem
+    AggsItemV,ReadableItem,ToTop
   },
   data(){
     return {
@@ -225,7 +227,7 @@ export default {
   @import '~@zkwq/business/dist/var.scss';
   .Search__page{
     width: 100%;
-    height: calc(100vh - 56px);
+    height: 100%;
     overflow: hidden;
     padding: 12px;
     display: flex;
@@ -265,8 +267,9 @@ export default {
     .Search__wrap{
       width: 0px;
       flex: 1;
-      height: auto;
-      overflow: hidden;
+      height: 100%;
+      overflow-y: auto;
+      position: relative;
       .Search__content{
         width: 100%;
         height: 60px;

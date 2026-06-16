@@ -21,8 +21,17 @@ html,body,#app{
   height: 100%;
   padding: 0px;
   margin: 0px;
-  overflow: auto;
+  overflow: hidden;
   letter-spacing: 1px;
+}
+#app{
+  display: flex;
+  flex-direction: column;
+  > div:not(.TopNav){
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+  }
 }
 *::-webkit-scrollbar
 {

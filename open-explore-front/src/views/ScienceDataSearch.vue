@@ -53,6 +53,7 @@
           :total="total > 10000?10000:total">
         </base-pagination>
       </div>
+      <ToTop />
     </div>
   </div>
 </template>
@@ -60,10 +61,11 @@
 <script>
 import {AggsItemV,ReadableItem} from '@zkwq/business'
 import { SearchScienceData,SearchScienceDataAgg } from '@/service/ScienceDataSearch'
+import ToTop from '@/components/ToTop.vue'
 
 export default {
   components:{
-    AggsItemV,ReadableItem
+    AggsItemV,ReadableItem,ToTop
   },
   data(){
     return {
@@ -169,19 +171,10 @@ export default {
         let data = res.result.data
         this.total = data.total;
         this.tableData = data.content.map(e => {
-          // Map nested record fields to top level for display
-          const record = e.record || {};
           return {
             ...e,
-            uuid: e.uuid,
-            title: record.title || record['title-en'] || 'Untitled',
-            abstracts: record.abstract || record['abstract-en'] || '',
-            author: record.author || record['author-en'] || '',
-            keyword: record.keyword || record['keyword-en'] || [],
-            date: record['pub-date'] || '',
-            year: record['pub-year'] || '',
-            doi: record.doi || '',
-            type: 'sciencedata'
+            date: e['pub-date'] || '',
+            year: e['pub-year'] || ''
           }
         });
         this.queryText = this.searchText;
@@ -215,10 +208,17 @@ export default {
           return;
         }
         let data = res.result.data
+        const aliasMap = {
+          'record.classification.first': 'Category L1',
+          'record.classification.second': 'Category L2',
+          'record.pub-year': 'Year',
+          'record.dataset-type': 'Dataset Type',
+          'record.type': 'Type'
+        }
         this.aggs = Object.keys(data).map(key => {
           return {
             key,
-            alias:key,
+            alias: aliasMap[key] || key,
             aggregations: data[key].buckets,
             selected_aggregation: this.aggs.find(item => item.key == key)?.selected_aggregation || []
           }
@@ -235,7 +235,7 @@ export default {
   @import '~@zkwq/business/dist/var.scss';
   .Search__page{
     width: 100%;
-    height: calc(100vh - 56px);
+    height: 100%;
     overflow: hidden;
     padding: 12px;
     display: flex;
@@ -274,8 +274,9 @@ export default {
     .Search__wrap{
       width: 0px;
       flex: 1;
-      height: auto;
-      overflow: hidden;
+      height: 100%;
+      overflow-y: auto;
+      position: relative;
       .Search__content{
         width: 100%;
         height: 60px;

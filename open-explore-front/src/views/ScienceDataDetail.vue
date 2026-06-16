@@ -27,8 +27,8 @@
               {{ contrib.auth || contrib['auth-en'] }}
             </span>
           </div>
-          <div class="authors-list" v-else-if="record.author || record['author-en']">
-            <span class="author-chip">{{ record.author || record['author-en'] }}</span>
+          <div class="authors-list" v-else-if="(record.author && record.author.length) || (record['author-en'] && record['author-en'].length)">
+            <span class="author-chip" v-for="(au, idx) in (record.author && record.author.length ? record.author : record['author-en'])" :key="idx">{{ au }}</span>
           </div>
           <div class="journal-meta">
             <span class="journal-name" v-if="record.publisher && record.publisher.name">{{ record.publisher.name }}</span>
@@ -40,9 +40,9 @@
         </section>
 
         <!-- 摘要 -->
-        <section class="abstract-section card" v-if="record.abstract || record['abstract-en']">
+        <section class="abstract-section card" v-if="record.abstracts || record['abstract-en']">
           <h2 class="section-title">Abstract</h2>
-          <p class="abstract-body">{{ record.abstract || record['abstract-en'] }}</p>
+          <p class="abstract-body">{{ record.abstracts || record['abstract-en'] }}</p>
         </section>
 
         <!-- 关键词 -->
@@ -204,12 +204,15 @@
     <footer class="reader-footer">
       <p>Additional visualization and related datasets coming soon…</p>
     </footer>
+    <ToTop />
   </div>
 </template>
 
 <script>
 import { SearchScienceDataDetail } from '@/service/ScienceDataSearch';
+import ToTop from '@/components/ToTop.vue';
 export default {
+  components: { ToTop },
   data() {
     return {
       scienceData: {},
@@ -228,7 +231,7 @@ export default {
         return;
       }
       this.scienceData = data.result.data;
-      this.record = this.scienceData.record || {};
+      this.record = this.scienceData;
     }
   }
 };
@@ -237,7 +240,8 @@ export default {
 <style scoped lang="scss">
 /* 全屏沉浸式布局 */
 .fullscreen-reader {
-  min-height: 100vh;
+  height: 100%;
+  overflow: auto;
   background: linear-gradient(135deg, #f5f7fa 0%, #e4e7f1 100%);
   display: flex;
   flex-direction: column;
