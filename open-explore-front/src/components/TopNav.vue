@@ -11,7 +11,7 @@
         @click="switchTab('article')"
       >
         <i class="base-icon-document"></i>
-        <span>论文</span>
+        <span>Articles</span>
       </div>
       <div
         class="TopNav__tab"
@@ -19,7 +19,7 @@
         @click="switchTab('sciencedata')"
       >
         <i class="base-icon-coin"></i>
-        <span>科学数据</span>
+        <span>Science Data</span>
       </div>
     </div>
   </div>
@@ -56,6 +56,7 @@ export default {
 .TopNav {
   width: 100%;
   height: 56px;
+  flex-shrink: 0;
   background: $--color-primary;
   display: flex;
   align-items: center;
