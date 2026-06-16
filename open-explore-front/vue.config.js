@@ -10,7 +10,7 @@ module.exports = defineConfig({
   devServer:{
     proxy:{
       '/searchApi':{
-        target:'http://10.0.11.117:8088',
+        target:'http://localhost:8088',
         changeOrigin:true,
         pathRewrite:{
           '^/searchApi':''
