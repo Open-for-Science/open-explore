@@ -1,11 +1,16 @@
-# Open Explore Academic Article Management System
+# Open Explore Academic Article & Science Data Management System
 
 ## 📋 Project Overview
 
-Open Explore is a Docker-based full-stack academic article management system that includes:
+Open Explore is a Docker-based full-stack academic article and science data management system that includes:
 - **Frontend**: Vue.js + Element UI user interface
 - **Backend**: Spring Boot + Elasticsearch API services
 - **Search Engine**: Elasticsearch 2.3.4 + IK Chinese word segmentation plugin
+- **Features**:
+  - Academic article search and management
+  - Science data search and management (New)
+  - Multi-dimensional aggregation filtering
+  - Responsive design for multiple devices
 
 ## 🏗️ System Architecture
 
@@ -14,6 +19,13 @@ Open Explore is a Docker-based full-stack academic article management system tha
 │   Vue Frontend  │    │  Spring Boot    │    │  Elasticsearch  │
 │   (Port: 80)    │───▶│   Backend       │───▶│   + IK Plugin   │
 │                 │    │  (Port: 8088)   │    │  (Port: 9200)   │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+        │                       │                       │
+        ▼                       ▼                       ▼
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│ Article Search  │    │ Science Data    │    │   Indexes:      │
+│ Science Data    │    │ API Services    │    │ - article_v1    │
+│ Detail Pages    │    │ Article API     │    │ - sciencedata_v1│
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
@@ -106,7 +118,15 @@ The initialization script will automatically:
    - DOI, ISSN, publication date and other metadata
    - Search fields supporting IK Chinese word segmentation
 
-2. **Insert Sample Data**: Contains an academic article about the application of artificial intelligence in sustainable urban development
+2. **Create Elasticsearch Index** `os_10_sciencedatacenter_v1` with the following fields:
+   - Title, abstracts, keywords
+   - Author, DOI, CSTR
+   - Dataset type, classification
+   - Publication date, spatial dimension
+   - Provider, facility information
+   - Search fields supporting IK Chinese word segmentation
+
+3. **Insert Sample Data**: Contains an academic article about the application of artificial intelligence in sustainable urban development
 
 ## 🛠️ Development and Debugging
 
@@ -157,6 +177,73 @@ chmod +x test-services.sh
 test-services.bat
 ```
 
+## 🔬 Science Data API Testing
+
+### API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/sciencedata/v1/list` | POST | List science data with search and pagination |
+| `/sciencedata/v1/aggregations` | POST | Get aggregation statistics |
+| `/sciencedata/v1/getOne/{id}` | GET | Get single science data by ID |
+| `/sciencedata/v1/edit` | POST | Create or update science data |
+
+### Testing Examples
+
+#### 1. List Science Data
+
+```bash
+curl -X POST "http://localhost:8088/sciencedata/v1/list" \
+  -H "Content-Type: application/json" \
+  -d '{"query":"","page":"1","size":"10"}'
+```
+
+#### 2. Get Aggregations
+
+```bash
+curl -X POST "http://localhost:8088/sciencedata/v1/aggregations" \
+  -H "Content-Type: application/json" \
+  -d '{"query":"","aggregations":{}}'
+```
+
+#### 3. Get Single Science Data
+
+```bash
+curl -X GET "http://localhost:8088/sciencedata/v1/getOne/{uuid}"
+```
+
+#### 4. Create/Update Science Data
+
+```bash
+curl -X POST "http://localhost:8088/sciencedata/v1/edit" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "测试科学数据集",
+    "abstracts": "这是一个测试数据集",
+    "keyword": ["测试", "科学数据"],
+    "pubDate": "2026-06-16"
+  }'
+```
+
+### Science Data Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `title` | String | Dataset title |
+| `title-en` | String | English title |
+| `abstract` | String | Dataset abstract |
+| `keyword` | Array | Keywords list |
+| `author` | String | Author name |
+| `doi` | String | Digital Object Identifier |
+| `cstr` | String | China Science and Technology Resource Identifier |
+| `pub-date` | String | Publication date |
+| `dataset-type` | String | Type of dataset |
+| `type` | String | Data type |
+| `classification` | Array | Classification hierarchy |
+| `provider-name` | String | Data provider |
+| `spatial-dimension` | String | Spatial coverage |
+| `facility` | String | Research facility |
+
 ## 🔄 Common Operations
 
 ### Stop All Services
@@ -194,10 +281,34 @@ open-explore/
 ├── open-explore-console/       # Spring Boot backend
 │   ├── Dockerfile
 │   ├── src/
+│   │   ├── main/java/com/os10/
+│   │   │   ├── controller/    # API controllers
+│   │   │   │   ├── ArticleController.java
+│   │   │   │   └── ScienceDataController.java
+│   │   │   ├── service/       # Business logic
+│   │   │   │   ├── ArticleServiceImpl.java
+│   │   │   │   └── ScienceDataServiceImpl.java
+│   │   │   ├── entity/        # Data entities
+│   │   │   │   ├── ArticleDO.java
+│   │   │   │   └── ScienceDataDO.java
+│   │   │   └── dto/           # Data transfer objects
+│   │   │       ├── ArticleQuery.java
+│   │   │       └── ScienceDataQuery.java
+│   │   └── resources/
+│   │       └── application.properties
 │   └── pom.xml
 └── open-explore-front/         # Vue.js frontend
     ├── Dockerfile
     ├── src/
+    │   ├── views/             # Page components
+    │   │   ├── ArticleSearch.vue
+    │   │   ├── ArticleDetail.vue
+    │   │   ├── ScienceDataSearch.vue
+    │   │   └── ScienceDataDetail.vue
+    │   ├── components/        # Common components
+    │   │   └── TopNav.vue
+    │   └── router/
+    │       └── index.js
     └── package.json
 ```
 
