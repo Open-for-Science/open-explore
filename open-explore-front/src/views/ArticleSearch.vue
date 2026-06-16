@@ -225,7 +225,7 @@ export default {
   @import '~@zkwq/business/dist/var.scss';
   .Search__page{
     width: 100%;
-    height: auto;
+    height: calc(100vh - 56px);
     overflow: hidden;
     padding: 12px;
     display: flex;
@@ -233,8 +233,8 @@ export default {
     background: white;
     .Agg__wrap{
       width:360px;
-      height: 100vh;
-      
+      height: 100%;
+
       .Agg__items{
         background: #EEF1F4;
         width: 100%;
@@ -242,7 +242,7 @@ export default {
         overflow: hidden;
         border-radius: 4px;
         padding: 4px 8px;
-        min-height: calc(100vh - 24px - 64px);
+        min-height: calc(100vh - 56px - 24px - 64px);
         .Agg__title{
           width: 100%;
           height: 40px;
