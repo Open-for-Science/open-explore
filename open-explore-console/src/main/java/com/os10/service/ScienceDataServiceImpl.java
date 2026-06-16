@@ -192,7 +192,11 @@ public class ScienceDataServiceImpl {
 
         JSONObject result = new JSONObject();
         List<JSONObject> jsonList = esScienceDataService.getJsonList(query.getHits());
-        result.put("content", jsonList);
+        List<JSONObject> flatList = new ArrayList<>();
+        for (JSONObject doc : jsonList) {
+            flatList.add(flattenDocument(doc));
+        }
+        result.put("content", flatList);
         result.put("total", query.getTotal());
         return BaseMessage.success(result);
     }
@@ -203,7 +207,6 @@ public class ScienceDataServiceImpl {
             Map<String, String> aggregations = scienceDataQuery.getAggregations();
             if (CollectionUtil.isEmpty(aggregations)) {
                 aggregations = new HashMap<>();
-                // Based on ES index structure, common aggregation fields
                 aggregations.put("record.classification.first", "");
                 aggregations.put("record.classification.second", "");
                 aggregations.put("record.pub-year", "");
@@ -236,9 +239,91 @@ public class ScienceDataServiceImpl {
         List<JSONObject> jsonList = esScienceDataService.getJsonList(hits);
         JSONObject result = new JSONObject();
         if (CollectionUtil.isNotEmpty(jsonList)) {
-            result = jsonList.get(0);
+            result = flattenDocument(jsonList.get(0));
         }
         return BaseMessage.success(result);
+    }
+
+    /**
+     * 将ES嵌套文档展平为与article一致的扁平格式
+     */
+    private JSONObject flattenDocument(JSONObject doc) {
+        JSONObject flat = new JSONObject();
+        // 顶层字段
+        flat.put("uuid", doc.getString("uuid"));
+        flat.put("is_display", doc.getString("is_display"));
+        flat.put("src-type", doc.getString("src-type"));
+        flat.put("src-data", doc.getString("src-data"));
+        flat.put("status", doc.getString("status"));
+        flat.put("version", doc.getString("version"));
+
+        // record 字段展平到顶层
+        JSONObject record = doc.getJSONObject("record");
+        if (record != null) {
+            flat.put("title", record.getString("title"));
+            flat.put("title-en", record.getString("title-en"));
+            flat.put("abstracts", record.getString("abstract"));
+            flat.put("abstract-en", record.getString("abstract-en"));
+            flat.put("keyword", record.get("keyword"));
+            flat.put("keyword-en", record.get("keyword-en"));
+            flat.put("author", splitToArray(record.getString("author")));
+            flat.put("author-en", splitToArray(record.getString("author-en")));
+            flat.put("doi", record.getString("doi"));
+            flat.put("cstr", record.getString("cstr"));
+            flat.put("pub-date", record.getString("pub-date"));
+            flat.put("pub-year", record.getString("pub-year"));
+            flat.put("dataset-id", record.getString("dataset-id"));
+            flat.put("dataset-type", record.getString("dataset-type"));
+            flat.put("type", "sciencedata");
+            flat.put("lang", record.getString("lang"));
+            flat.put("size", record.getString("size"));
+            flat.put("file-count", record.getString("file-count"));
+            flat.put("record-count", record.getString("record-count"));
+            flat.put("start-date", record.getString("start-date"));
+            flat.put("end-date", record.getString("end-date"));
+            flat.put("spatial-dimension", record.getString("spatial-dimension"));
+            flat.put("facility", record.getString("facility"));
+            flat.put("group-name", record.getString("group-name"));
+            flat.put("provider-name", record.getString("provider-name"));
+            flat.put("correspondent", record.getString("correspondent"));
+            flat.put("uri", record.getString("uri"));
+            flat.put("url", record.getString("url"));
+            flat.put("image-url", record.getString("image-url"));
+            flat.put("coverUrl", record.getString("coverUrl"));
+            flat.put("rights", record.getString("rights"));
+            flat.put("share", record.getString("share"));
+            flat.put("reference", record.getString("reference"));
+            flat.put("source-db", record.getString("source-db"));
+            flat.put("pid", record.getString("pid"));
+            flat.put("issue", record.getString("issue"));
+            flat.put("browse_count", record.get("browse_count"));
+            flat.put("download_count", record.get("download_count"));
+            flat.put("classification", record.get("classification"));
+            flat.put("contributor", record.get("contributor"));
+            flat.put("funding", record.get("funding"));
+            flat.put("project", record.get("project"));
+            flat.put("publisher", record.get("publisher"));
+            flat.put("copyRight", record.get("copyRight"));
+            flat.put("article", record.get("article"));
+        }
+
+        return flat;
+    }
+
+    private List<String> splitToArray(String value) {
+        if (StrUtil.isEmpty(value)) {
+            return Collections.emptyList();
+        }
+        // 按 ; | , 分隔，去除空白
+        String[] parts = value.split("[;|,]");
+        List<String> list = new ArrayList<>();
+        for (String part : parts) {
+            String trimmed = part.trim();
+            if (StrUtil.isNotEmpty(trimmed)) {
+                list.add(trimmed);
+            }
+        }
+        return list;
     }
 
     public static String formatQuery(String value) {
