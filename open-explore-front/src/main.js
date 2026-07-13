@@ -5,6 +5,7 @@ import store from './store'
 import BaseUI from '@zkwq/business';
 import '@zkwq/business/dist/index.min.css';
 import VueRouter from 'vue-router'
+import i18n from './i18n'
 import AppMixin from './mixins'
 import client from 'webpack-theme-color-replacer/client'
 import getElementUISeries from 'webpack-theme-color-replacer/forElementUI/getElementUISeries'
@@ -28,5 +29,6 @@ Vue.mixin(AppMixin)
 let instance = new Vue({
   router,
   store,
+  i18n,
   render: h => h(App)
 }).$mount('#app')

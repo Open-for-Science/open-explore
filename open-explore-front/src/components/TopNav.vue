@@ -1,17 +1,25 @@
 <template>
   <div class="TopNav">
-    <div class="TopNav__logo">
+    <div class="TopNav__logo" @click="goHome">
       <i class="base-icon-discover"></i>
       <span>Open Explore</span>
     </div>
     <div class="TopNav__tabs">
       <div
         class="TopNav__tab"
+        :class="{ 'TopNav__tab--active': activeTab === 'home' }"
+        @click="switchTab('home')"
+      >
+        <i class="base-icon-discover"></i>
+        <span>{{ $t('nav.home') }}</span>
+      </div>
+      <div
+        class="TopNav__tab"
         :class="{ 'TopNav__tab--active': activeTab === 'article' }"
         @click="switchTab('article')"
       >
         <i class="base-icon-document"></i>
-        <span>Articles</span>
+        <span>{{ $t('nav.articles') }}</span>
       </div>
       <div
         class="TopNav__tab"
@@ -19,30 +27,44 @@
         @click="switchTab('sciencedata')"
       >
         <i class="base-icon-coin"></i>
-        <span>Science Data</span>
+        <span>{{ $t('nav.scienceData') }}</span>
       </div>
     </div>
+    <LanguageSwitcher />
   </div>
 </template>
 
 <script>
+import LanguageSwitcher from './LanguageSwitcher.vue'
+
 export default {
   name: 'TopNav',
+  components: { LanguageSwitcher },
   computed: {
     activeTab() {
       const path = this.$route.path
-      if (path.startsWith('/sciencedata')) {
+      if (path === '/' || path.startsWith('/home')) {
+        return 'home'
+      } else if (path.startsWith('/sciencedata')) {
         return 'sciencedata'
+      } else {
+        return 'article'
       }
-      return 'article'
     }
   },
   methods: {
+    goHome() {
+      if (this.$route.path !== '/') {
+        this.$router.push('/')
+      }
+    },
     switchTab(tab) {
       if (tab === this.activeTab) return
-      if (tab === 'article') {
+      if (tab === 'home') {
         this.$router.push('/')
-      } else {
+      } else if (tab === 'article') {
+        this.$router.push('/search')
+      } else if (tab === 'sciencedata') {
         this.$router.push('/sciencedata')
       }
     }
@@ -73,6 +95,7 @@ export default {
     font-weight: bold;
     margin-right: 48px;
     white-space: nowrap;
+    cursor: pointer;
 
     i {
       font-size: 22px;

@@ -22,27 +22,38 @@ import org.springframework.util.StringUtils;
 
 import java.util.*;
 
+/**
+ * 文章业务逻辑实现
+ */
 @Service
 public class ArticleServiceImpl {
 
     @Autowired
     private EsArticleService esArticleService;
 
+    /**
+     * 创建/编辑文章
+     * 新增：基于 title+date+journal MD5 生成 uuid，重复时拒绝
+     * 更新：已有 uuid 则覆盖式更新
+     */
     public BaseMessage editArticle(ArticleDO articleDO) {
         String title = articleDO.getTitle();
         String id = articleDO.getUuid();
         String date = articleDO.getDate();
         String journal = articleDO.getJournal();
 
+        // 从日期中提取年份
         if (StrUtil.isNotEmpty(date)) {
             articleDO.setYear(date.substring(0, 4));
         }
         if (StrUtil.isEmpty(id)) {
+            // ---- 新增 ----
             if (StrUtil.isEmpty(title) || StrUtil.isEmpty(date) || StrUtil.isEmpty(journal)) {
                 return BaseMessage.paramsEmpty();
             }
             id = MD5Util.getMD5(title + date + journal);
-            JSONObject data = (JSONObject)getArticle(id).getData();
+            // 检查是否已存在（重复校验）
+            JSONObject data = (JSONObject) getArticle(id).getData();
             if (CollectionUtil.isNotEmpty(data)) {
                 return BaseMessage.error(-1, "重复添加!");
             }
@@ -50,13 +61,19 @@ public class ArticleServiceImpl {
             JSONObject index = esArticleService.index(Collections.singletonList(JSONObject.parseObject(JSONObject.toJSONString(articleDO))));
             return BaseMessage.success(index);
         } else {
+            // ---- 更新 ----
             JSONObject update = esArticleService.updateById(id, JSONObject.parseObject(JSONObject.toJSONString(articleDO)));
             return BaseMessage.success(update);
         }
     }
 
-    public BaseMessage listArticles(ArticleQuery articleQuery){
+    /**
+     * 分页查询文章列表
+     * 支持全文检索（title_ik/abstracts_ik/keyword_ik 走 IK 分词）、分面过滤、排序、分页
+     */
+    public BaseMessage listArticles(ArticleQuery articleQuery) {
         ESResult query = esArticleService.query(searchSourceBuilder -> {
+            // 排序
             String orderField = articleQuery.getOrderField();
             if (StrUtil.isEmpty(orderField)) {
                 orderField = "_score";
@@ -65,6 +82,7 @@ public class ArticleServiceImpl {
             if (StrUtil.isEmpty(orderDirection)) {
                 orderDirection = "desc";
             }
+            // 分页
             String pageStr = articleQuery.getPage();
             if (StrUtil.isEmpty(pageStr)) {
                 pageStr = "1";
@@ -72,7 +90,7 @@ public class ArticleServiceImpl {
             int page = 1;
             try {
                 page = Math.max(Integer.parseInt(pageStr), 1);
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             String sizeStr = articleQuery.getSize();
             int size = 10;
@@ -95,8 +113,12 @@ public class ArticleServiceImpl {
         return BaseMessage.success(result);
     }
 
-    public BaseMessage<JSONObject> listArticleAggregations(ArticleQuery articleQuery){
-
+    /**
+     * 文章聚合分析
+     * 支持 subject / journal / year / collection / type 等字段的 terms 聚合
+     * 可在请求中通过 aggregations 参数自定义聚合字段及过滤值
+     */
+    public BaseMessage<JSONObject> listArticleAggregations(ArticleQuery articleQuery) {
         ESResult query = esArticleService.query(searchSourceBuilder -> {
             Map<String, String> aggregations = articleQuery.getAggregations();
             if (CollectionUtil.isEmpty(aggregations)) {
@@ -108,10 +130,12 @@ public class ArticleServiceImpl {
                 aggregations.put("type", "");
             }
             searchSourceBuilder.size(0);
+            // 分面过滤
             BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
             buildFilterQuery(boolQueryBuilder, articleQuery);
             searchSourceBuilder.query(boolQueryBuilder);
 
+            // 添加 terms 聚合
             if (CollectionUtil.isNotEmpty(aggregations)) {
                 aggregations.keySet().forEach(key -> {
                     TermsBuilder termsBuilder = AggregationBuilders.terms(key)
@@ -125,8 +149,10 @@ public class ArticleServiceImpl {
         return BaseMessage.success(query.getAggs());
     }
 
-
-    public BaseMessage getArticle(String id){
+    /**
+     * 根据 uuid 获取单篇文章
+     */
+    public BaseMessage getArticle(String id) {
         JSONArray hits = esArticleService.query(searchSourceBuilder -> {
             searchSourceBuilder.query(QueryBuilders.termQuery("uuid", id));
         }).getHits();
@@ -137,6 +163,10 @@ public class ArticleServiceImpl {
         }
         return BaseMessage.success(result);
     }
+
+    /**
+     * 格式化查询字符串，过滤掉特殊字符
+     */
     public static String formatQuery(String value) {
         if (StrUtil.isNotEmpty(value)) {
             return value.replaceAll("[?:/\\\\]", "")
@@ -145,12 +175,19 @@ public class ArticleServiceImpl {
         return value;
     }
 
+    /**
+     * 构建 ES Bool 过滤查询
+     * 支持两种搜索模式：
+     * 1) strategy：精确策略搜索，支持 title:xxx 语法（query_string 模式）
+     * 2) query：全文检索，走 IK 中文分词，匹配 title_ik / abstracts_ik / keyword_ik 字段
+     * 同时支持聚合分面过滤（aggregations 中 value 不为空的字段做 filter）
+     */
     public void buildFilterQuery(BoolQueryBuilder searchQueryBuilder, ArticleQuery articleQuery) {
 
         String query = formatQuery(articleQuery.getQuery());
         String strategy = articleQuery.getStrategy();
 
-        // 分面请求
+        // 分面过滤：当聚合字段有选中值时，对结果集做 filter
         Map<String, String> aggregations = articleQuery.getAggregations();
         if (CollectionUtil.isNotEmpty(aggregations)) {
             aggregations.forEach((key, value) -> {
@@ -163,8 +200,13 @@ public class ArticleServiceImpl {
         if (StrUtil.isNotEmpty(query) || StrUtil.isNotEmpty(strategy)) {
             BoolQueryBuilder searchShould;
             if (StrUtil.isNotEmpty(strategy)) {
+                // ---- 精确策略搜索模式 ----
                 searchShould = QueryBuilders.boolQuery();
-                searchShould.should(QueryBuilders.queryStringQuery(strategy).defaultOperator(QueryStringQueryBuilder.Operator.AND).phraseSlop(0).autoGeneratePhraseQueries(true));
+                searchShould.should(QueryBuilders.queryStringQuery(strategy)
+                        .defaultOperator(QueryStringQueryBuilder.Operator.AND)
+                        .phraseSlop(0)
+                        .autoGeneratePhraseQueries(true));
+                // 解析 field:value 语法并做精确短语匹配
                 String advancedSearchNew = strategy.replaceAll("[\\(\\)]", "");
                 String[] oldSplit = strategy.split("\\:");
                 String[] split = advancedSearchNew.split("\\:");
@@ -178,9 +220,17 @@ public class ArticleServiceImpl {
                 }
                 searchQueryBuilder.must(searchShould);
             } else {
+                // ---- 全文检索模式（IK 中文分词） ----
                 searchShould = QueryBuilders.boolQuery();
-                QueryStringQueryBuilder queryStringQuery = QueryBuilders.queryStringQuery(query).defaultOperator(QueryStringQueryBuilder.Operator.AND).autoGeneratePhraseQueries(true).field("title_ik", 150.0F).field("abstracts_ik").field("keyword_ik").phraseSlop(0);
+                QueryStringQueryBuilder queryStringQuery = QueryBuilders.queryStringQuery(query)
+                        .defaultOperator(QueryStringQueryBuilder.Operator.AND)
+                        .autoGeneratePhraseQueries(true)
+                        .field("title_ik", 150.0F)   // 标题权重最高
+                        .field("abstracts_ik")         // 摘要
+                        .field("keyword_ik")           // 关键词
+                        .phraseSlop(0);
                 searchShould.should(queryStringQuery);
+                // 标题精确短语匹配，额外提权
                 searchShould.should(QueryBuilders.matchPhraseQuery("title_ik", query).boost(20.0F));
                 searchQueryBuilder.must(searchShould);
             }
