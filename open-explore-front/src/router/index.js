@@ -1,10 +1,15 @@
-
+import HomePage from '../views/HomePage.vue'
 import ArticleSearch from '../views/ArticleSearch.vue'
 
 
 const routes = [
   {
     path: '/',
+    name: 'HomePage',
+    component: HomePage
+  },
+  {
+    path: '/search',
     name: 'ArticleSearch',
     component: ArticleSearch
   },
