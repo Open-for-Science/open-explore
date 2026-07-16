@@ -334,6 +334,37 @@ public class ScienceDataServiceImpl {
         return value;
     }
 
+    /**
+     * 获取科学数据总数
+     */
+    /**
+     * 获取最新的 N 条科学数据（首页展示用，按 insert-date 降序）
+     */
+    public BaseMessage listLatestScienceData(int size) {
+        ESResult query = esScienceDataService.query(searchSourceBuilder -> {
+            searchSourceBuilder.query(QueryBuilders.matchAllQuery());
+            searchSourceBuilder.sort("record.pub-date", SortOrder.DESC);
+            searchSourceBuilder.from(0).size(size);
+        });
+        List<JSONObject> jsonList = esScienceDataService.getJsonList(query.getHits());
+        List<JSONObject> flatList = new ArrayList<>();
+        for (JSONObject doc : jsonList) {
+            flatList.add(flattenDocument(doc));
+        }
+        JSONObject result = new JSONObject();
+        result.put("content", flatList);
+        result.put("total", query.getTotal());
+        return BaseMessage.success(result);
+    }
+
+    public long countTotal() {
+        ESResult result = esScienceDataService.query(searchSourceBuilder -> {
+            searchSourceBuilder.query(QueryBuilders.matchAllQuery());
+            searchSourceBuilder.size(0);
+        });
+        return result != null ? result.getTotal() : 0;
+    }
+
     public void buildFilterQuery(BoolQueryBuilder searchQueryBuilder, ScienceDataQuery scienceDataQuery) {
 
         String query = formatQuery(scienceDataQuery.getQuery());

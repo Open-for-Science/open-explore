@@ -58,6 +58,16 @@ public class ScienceDataController {
     }
 
     /**
+     * 获取最新科学数据（首页展示用）
+     * GET /sciencedata/v1/latest?size=3
+     * 按 record.pub-date 降序，返回展平后的数据
+     */
+    @GetMapping("/v1/latest")
+    public BaseMessage getLatestScienceData(@RequestParam(defaultValue = "3") int size) {
+        return scienceDataService.listLatestScienceData(size);
+    }
+
+    /**
      * 根据 uuid 获取单条科学数据详情
      * 返回结果从嵌套结构展平为扁平格式
      *

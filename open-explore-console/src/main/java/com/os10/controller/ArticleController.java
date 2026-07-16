@@ -67,4 +67,13 @@ public class ArticleController {
         return articleService.getArticle(id);
     }
 
+    /**
+     * 获取最新文章（首页展示用）
+     * GET /article/v1/latest?size=3
+     */
+    @GetMapping("/v1/latest")
+    public BaseMessage getLatestArticles(@RequestParam(defaultValue = "3") int size) {
+        return articleService.listLatestArticles(size);
+    }
+
 }

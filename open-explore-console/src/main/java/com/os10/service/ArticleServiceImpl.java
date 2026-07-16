@@ -182,6 +182,37 @@ public class ArticleServiceImpl {
      * 2) query：全文检索，走 IK 中文分词，匹配 title_ik / abstracts_ik / keyword_ik 字段
      * 同时支持聚合分面过滤（aggregations 中 value 不为空的字段做 filter）
      */
+    /**
+     * 获取最近发布的文章（用于首页展示）
+     * 按 date 倒序取前 n 条
+     */
+    public BaseMessage listLatestArticles(int size) {
+        ESResult query = esArticleService.query(searchSourceBuilder -> {
+            searchSourceBuilder.query(QueryBuilders.matchAllQuery());
+            searchSourceBuilder.sort("date", SortOrder.DESC);
+            searchSourceBuilder.from(0).size(size);
+        });
+        List<JSONObject> jsonList = esArticleService.getJsonList(query.getHits());
+        for (JSONObject jsonObject : jsonList) {
+            System.out.println(jsonObject.toJSONString());
+        }
+        JSONObject result = new JSONObject();
+        result.put("content", jsonList);
+        result.put("total", query.getTotal());
+        return BaseMessage.success(result);
+    }
+
+    /**
+     * 获取文章总数
+     */
+    public long countTotal() {
+        ESResult result = esArticleService.query(searchSourceBuilder -> {
+            searchSourceBuilder.query(QueryBuilders.matchAllQuery());
+            searchSourceBuilder.size(0);
+        });
+        return result != null ? result.getTotal() : 0;
+    }
+
     public void buildFilterQuery(BoolQueryBuilder searchQueryBuilder, ArticleQuery articleQuery) {
 
         String query = formatQuery(articleQuery.getQuery());
