@@ -1,6 +1,6 @@
 import HomePage from '../views/HomePage.vue'
-import ArticleSearch from '../views/ArticleSearch.vue'
-
+import SearchPage from '../views/SearchPage.vue'
+import AboutUs from '../views/AboutUs.vue'
 
 const routes = [
   {
@@ -10,8 +10,8 @@ const routes = [
   },
   {
     path: '/search',
-    name: 'ArticleSearch',
-    component: ArticleSearch
+    name: 'SearchPage',
+    component: SearchPage
   },
   {
     path: '/article/detail/:id',
@@ -19,14 +19,24 @@ const routes = [
     component: () => import('../views/ArticleDetail.vue')
   },
   {
-    path: '/sciencedata',
-    name: 'ScienceDataSearch',
-    component: () => import('../views/ScienceDataSearch.vue')
-  },
-  {
     path: '/sciencedata/detail/:id',
     name: 'ScienceDataDetail',
     component: () => import('../views/ScienceDataDetail.vue')
+  },
+  {
+    path: '/software/detail/:id',
+    name: 'SoftwareDetail',
+    component: () => import('../views/SoftwareDetail.vue')
+  },
+  {
+    path: '/facility/detail/:id',
+    name: 'FacilityDetail',
+    component: () => import('../views/FacilityDetail.vue')
+  },
+  {
+    path: '/about',
+    name: 'AboutUs',
+    component: AboutUs
   }
 ]
 

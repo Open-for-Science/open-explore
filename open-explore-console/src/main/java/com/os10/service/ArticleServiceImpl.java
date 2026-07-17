@@ -193,9 +193,9 @@ public class ArticleServiceImpl {
             searchSourceBuilder.from(0).size(size);
         });
         List<JSONObject> jsonList = esArticleService.getJsonList(query.getHits());
-        for (JSONObject jsonObject : jsonList) {
-            System.out.println(jsonObject.toJSONString());
-        }
+//        for (JSONObject jsonObject : jsonList) {
+//            System.out.println(jsonObject.toJSONString());
+//        }
         JSONObject result = new JSONObject();
         result.put("content", jsonList);
         result.put("total", query.getTotal());
