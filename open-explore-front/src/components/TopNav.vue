@@ -15,19 +15,25 @@
       </div>
       <div
         class="TopNav__tab"
-        :class="{ 'TopNav__tab--active': activeTab === 'article' }"
-        @click="switchTab('article')"
+        :class="{ 'TopNav__tab--active': activeTab === 'search' }"
+        @click="switchTab('search')"
       >
-        <i class="base-icon-document"></i>
-        <span>{{ $t('nav.articles') }}</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px;">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="M21 21l-4.35-4.35"/>
+        </svg>
+        <span>{{ $t('nav.search') }}</span>
       </div>
       <div
         class="TopNav__tab"
-        :class="{ 'TopNav__tab--active': activeTab === 'sciencedata' }"
-        @click="switchTab('sciencedata')"
+        :class="{ 'TopNav__tab--active': activeTab === 'about' }"
+        @click="switchTab('about')"
       >
-        <i class="base-icon-coin"></i>
-        <span>{{ $t('nav.scienceData') }}</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px;">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 16v-4M12 8h.01"/>
+        </svg>
+        <span>{{ $t('nav.about') }}</span>
       </div>
     </div>
     <LanguageSwitcher />
@@ -45,10 +51,12 @@ export default {
       const path = this.$route.path
       if (path === '/' || path.startsWith('/home')) {
         return 'home'
-      } else if (path.startsWith('/sciencedata')) {
-        return 'sciencedata'
+      } else if (path.startsWith('/about')) {
+        return 'about'
+      } else if (path.startsWith('/search') || path.startsWith('/article') || path.startsWith('/sciencedata') || path.startsWith('/software') || path.startsWith('/facility')) {
+        return 'search'
       } else {
-        return 'article'
+        return 'home'
       }
     }
   },
@@ -62,10 +70,10 @@ export default {
       if (tab === this.activeTab) return
       if (tab === 'home') {
         this.$router.push('/')
-      } else if (tab === 'article') {
+      } else if (tab === 'search') {
         this.$router.push('/search')
-      } else if (tab === 'sciencedata') {
-        this.$router.push('/sciencedata')
+      } else if (tab === 'about') {
+        this.$router.push('/about')
       }
     }
   }

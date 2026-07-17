@@ -83,6 +83,9 @@ public class SoftwareServiceImpl {
         });
 
         List<JSONObject> jsonList = esSoftwareService.getJsonList(query.getHits());
+        for (JSONObject jsonObject : jsonList) {
+            jsonObject.put("image-url","");
+        }
         JSONObject result = new JSONObject();
         result.put("content", jsonList);
         result.put("total", query.getTotal());
