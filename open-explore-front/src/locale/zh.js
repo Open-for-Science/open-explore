@@ -131,12 +131,12 @@ export default {
     ],
     contributorsTitle: '贡献人员',
     contributors: [
-      { name: '张三', avatar: 'https://img0.baidu.com/it/u=4279917707,1303528668&fm=253&app=138&f=JPEG?w=500&h=500' },
-      { name: '李四', avatar: 'https://img0.baidu.com/it/u=4279917707,1303528668&fm=253&app=138&f=JPEG?w=500&h=500' },
-      { name: '王五', avatar: 'https://img0.baidu.com/it/u=4279917707,1303528668&fm=253&app=138&f=JPEG?w=500&h=500' },
-      { name: '赵六', avatar: 'https://img0.baidu.com/it/u=4279917707,1303528668&fm=253&app=138&f=JPEG?w=500&h=500' },
-      { name: '陈七', avatar: 'https://img0.baidu.com/it/u=4279917707,1303528668&fm=253&app=138&f=JPEG?w=500&h=500' },
-      { name: '刘八', avatar: 'https://img0.baidu.com/it/u=4279917707,1303528668&fm=253&app=138&f=JPEG?w=500&h=500' }
+      { name: '爱因斯坦', avatar: 'https://img2.baidu.com/it/u=2048407228,1004329404&fm=253&fmt=auto&app=120&f=JPEG?w=437&h=607' },
+      { name: '牛顿', avatar: 'https://img2.baidu.com/it/u=2048407228,1004329404&fm=253&fmt=auto&app=120&f=JPEG?w=437&h=607' },
+      {  name: '达尔文', avatar: 'https://img2.baidu.com/it/u=2048407228,1004329404&fm=253&fmt=auto&app=120&f=JPEG?w=437&h=607' },
+      { name: '图灵', avatar: 'https://img2.baidu.com/it/u=2048407228,1004329404&fm=253&fmt=auto&app=120&f=JPEG?w=437&h=607' },
+      { name: '霍金', avatar: 'https://img2.baidu.com/it/u=2048407228,1004329404&fm=253&fmt=auto&app=120&f=JPEG?w=437&h=607' },
+      { name: '居里夫人', avatar: 'https://img2.baidu.com/it/u=2048407228,1004329404&fm=253&fmt=auto&app=120&f=JPEG?w=437&h=607' }
     ],
     footer: '© 2026 Open Explore. 开放科学，知识共享。'
   }
