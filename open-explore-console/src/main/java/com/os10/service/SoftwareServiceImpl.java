@@ -83,11 +83,38 @@ public class SoftwareServiceImpl {
         });
 
         List<JSONObject> jsonList = esSoftwareService.getJsonList(query.getHits());
-        for (JSONObject jsonObject : jsonList) {
-            jsonObject.put("image-url","");
+        // 字段映射：将 ES 原始软件字段转换为前端可读字段
+        List<JSONObject> mappedList = new ArrayList<>();
+        for (JSONObject item : jsonList) {
+            JSONObject mapped = new JSONObject();
+            mapped.put("uuid", item.getString("uuid"));
+            mapped.put("title", item.getString("name") != null ? item.getString("name") : "");
+            mapped.put("abstracts", item.getString("detail_json") != null ? item.getString("detail_json") : "");
+            // tag -> keyword
+            JSONArray tags = item.getJSONArray("tag");
+            mapped.put("keyword", tags != null ? tags : new JSONArray());
+            // 作者（软件可能没有，保持空）
+            mapped.put("author", new JSONArray());
+            // 其他字段
+            mapped.put("pub-date", item.getString("publish_time") != null ? item.getString("publish_time") : "");
+            mapped.put("pub-year", item.getString("pub_year") != null ? item.getString("pub_year") : "");
+            mapped.put("category", item.getString("category") != null ? item.getString("category") : "");
+            mapped.put("license", item.getString("license") != null ? item.getString("license") : "");
+            mapped.put("status", item.getString("status") != null ? item.getString("status") : "");
+            mapped.put("organization", item.getString("aggregated_source") != null ? item.getString("aggregated_source") : "");
+            mapped.put("source-url", item.getString("homepage") != null ? item.getString("homepage") : "");
+            mapped.put("detail_url", item.getString("detail_url") != null ? item.getString("detail_url") : "");
+            mapped.put("image-url", "");
+            // 补充前端 ReadableItem 需要的字段
+            mapped.put("date", mapped.getString("pub-date"));
+            mapped.put("year", mapped.getString("pub-year"));
+            mapped.put("doi", "");
+            mapped.put("journal", "");
+            mapped.put("link", "");
+            mappedList.add(mapped);
         }
         JSONObject result = new JSONObject();
-        result.put("content", jsonList);
+        result.put("content", mappedList);
         result.put("total", query.getTotal());
         return BaseMessage.success(result);
     }
@@ -128,6 +155,30 @@ public class SoftwareServiceImpl {
      */
     public BaseMessage getSoftware(String id) {
         JSONObject data = esSoftwareService.queryById(id);
+        if (data != null && !data.isEmpty()) {
+            JSONObject mapped = new JSONObject();
+            mapped.put("uuid", data.getString("uuid"));
+            mapped.put("title", data.getString("name") != null ? data.getString("name") : "");
+            mapped.put("abstracts", data.getString("detail_json") != null ? data.getString("detail_json") : "");
+            JSONArray tags = data.getJSONArray("tag");
+            mapped.put("keyword", tags != null ? tags : new JSONArray());
+            mapped.put("author", new JSONArray());
+            mapped.put("pub-date", data.getString("publish_time") != null ? data.getString("publish_time") : "");
+            mapped.put("pub-year", data.getString("pub_year") != null ? data.getString("pub_year") : "");
+            mapped.put("category", data.getString("category") != null ? data.getString("category") : "");
+            mapped.put("license", data.getString("license") != null ? data.getString("license") : "");
+            mapped.put("status", data.getString("status") != null ? data.getString("status") : "");
+            mapped.put("organization", data.getString("aggregated_source") != null ? data.getString("aggregated_source") : "");
+            mapped.put("source-url", data.getString("homepage") != null ? data.getString("homepage") : "");
+            mapped.put("detail_url", data.getString("detail_url") != null ? data.getString("detail_url") : "");
+            mapped.put("image-url", "");
+            mapped.put("date", mapped.getString("pub-date"));
+            mapped.put("year", mapped.getString("pub-year"));
+            mapped.put("doi", "");
+            mapped.put("journal", "");
+            mapped.put("link", "");
+            return BaseMessage.success(mapped);
+        }
         return BaseMessage.success(data);
     }
 
@@ -141,8 +192,26 @@ public class SoftwareServiceImpl {
             searchSourceBuilder.from(0).size(size);
         });
         List<JSONObject> jsonList = esSoftwareService.getJsonList(query.getHits());
+        List<JSONObject> mappedList = new ArrayList<>();
+        for (JSONObject item : jsonList) {
+            JSONObject mapped = new JSONObject();
+            mapped.put("uuid", item.getString("uuid"));
+            mapped.put("title", item.getString("name") != null ? item.getString("name") : "");
+            mapped.put("abstracts", item.getString("detail_json") != null ? item.getString("detail_json") : "");
+            JSONArray tags = item.getJSONArray("tag");
+            mapped.put("keyword", tags != null ? tags : new JSONArray());
+            mapped.put("author", new JSONArray());
+            mapped.put("pub-date", item.getString("publish_time") != null ? item.getString("publish_time") : "");
+            mapped.put("pub-year", item.getString("pub_year") != null ? item.getString("pub_year") : "");
+            mapped.put("date", mapped.getString("pub-date"));
+            mapped.put("year", mapped.getString("pub-year"));
+            mapped.put("image-url", "");
+            mapped.put("doi", "");
+            mapped.put("link", "");
+            mappedList.add(mapped);
+        }
         JSONObject result = new JSONObject();
-        result.put("content", jsonList);
+        result.put("content", mappedList);
         result.put("total", query.getTotal());
         return BaseMessage.success(result);
     }

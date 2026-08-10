@@ -108,7 +108,80 @@ public class ArticleServiceImpl {
 
         JSONObject result = new JSONObject();
         List<JSONObject> jsonList = esArticleService.getJsonList(query.getHits());
-        result.put("content", jsonList);
+        // 字段映射：将 ES 原始字段名转换为前端可读字段
+        List<JSONObject> mappedList = new ArrayList<>();
+        for (JSONObject item : jsonList) {
+            JSONObject mapped = new JSONObject();
+            mapped.put("uuid", item.getString("uuid"));
+            // title
+            String title = item.getString("article_article-title") != null ? item.getString("article_article-title") :
+                          item.getString("article_article-title_display");
+            mapped.put("title", title != null ? title : "");
+            // 作者
+            JSONArray authors = new JSONArray();
+            JSONArray cn = item.getJSONArray("contrib_full-name-cn");
+            if (cn != null && cn.size() > 0 && cn.get(0) instanceof JSONArray) {
+                JSONArray inner = cn.getJSONArray(0);
+                for (int i = 0; i < inner.size(); i++) {
+                    Object val = inner.get(i);
+                    if (val instanceof JSONArray) {
+                        authors.add(((JSONArray)val).getString(0));
+                    } else {
+                        authors.add(val.toString());
+                    }
+                }
+            }
+            mapped.put("author", authors);
+            // 摘要
+            String abs = item.getString("article_abstract-cn") != null ? item.getString("article_abstract-cn") :
+                        item.getString("article_abstract");
+            mapped.put("abstracts", abs != null ? abs : "");
+            // 关键词
+            JSONArray keywords = new JSONArray();
+            JSONArray kw = item.getJSONArray("subj-class-kwd_kwdIK");
+            if (kw != null && kw.size() > 0 && kw.get(0) instanceof JSONArray) {
+                JSONArray inner = kw.getJSONArray(0);
+                for (int i = 0; i < inner.size(); i++) {
+                    Object val = inner.get(i);
+                    if (val instanceof JSONArray) {
+                        keywords.add(((JSONArray)val).getString(0));
+                    } else {
+                        keywords.add(val.toString());
+                    }
+                }
+            }
+            mapped.put("keyword", keywords);
+            // 期刊
+            String journal = item.getString("source_source-title-cn") != null ? item.getString("source_source-title-cn") :
+                            item.getString("source_source-title");
+            mapped.put("journal", journal != null ? journal : "");
+            // 年份
+            String year = item.getString("article_year");
+            mapped.put("year", year != null ? year : "");
+            // 日期
+            mapped.put("date", item.getString("date") != null ? item.getString("date") : "");
+            // issn
+            String issn = item.getString("source_issn");
+            mapped.put("issn", issn != null ? issn : "");
+            // 链接
+            String link = item.getString("access_ext-link-display");
+            mapped.put("link", link != null ? link : "");
+            // type
+            mapped.put("type", item.getString("article_article-type-display") != null ? item.getString("article_article-type-display") : "期刊论文");
+            // 其他字段保持原样
+            mapped.put("doi", "");
+            mapped.put("subject", new JSONArray());
+            mapped.put("institution", new JSONArray());
+            mapped.put("publisher", "");
+            mapped.put("volume", "");
+            mapped.put("issue", "");
+            mapped.put("start_page", "");
+            mapped.put("funding", "");
+            mapped.put("collection", new JSONArray());
+            mapped.put("license", "");
+            mappedList.add(mapped);
+        }
+        result.put("content", mappedList);
         result.put("total", query.getTotal());
         return BaseMessage.success(result);
     }
@@ -118,6 +191,69 @@ public class ArticleServiceImpl {
      * 支持 subject / journal / year / collection / type 等字段的 terms 聚合
      * 可在请求中通过 aggregations 参数自定义聚合字段及过滤值
      */
+    /**
+     * 字段映射：将 ES 原始文章数据转换为标准字段
+     */
+    private JSONObject mapArticleFields(JSONObject item) {
+        JSONObject mapped = new JSONObject();
+        mapped.put("uuid", item.getString("uuid"));
+        String title = item.getString("article_article-title") != null ? item.getString("article_article-title") :
+                      item.getString("article_article-title_display");
+        mapped.put("title", title != null ? title : "");
+        // 作者
+        JSONArray authors = new JSONArray();
+        JSONArray cn = item.getJSONArray("contrib_full-name-cn");
+        if (cn != null && cn.size() > 0 && cn.get(0) instanceof JSONArray) {
+            JSONArray inner = cn.getJSONArray(0);
+            for (int i = 0; i < inner.size(); i++) {
+                Object val = inner.get(i);
+                if (val instanceof JSONArray) {
+                    authors.add(((JSONArray)val).getString(0));
+                } else {
+                    authors.add(val.toString());
+                }
+            }
+        }
+        mapped.put("author", authors);
+        String abs = item.getString("article_abstract-cn") != null ? item.getString("article_abstract-cn") :
+                    item.getString("article_abstract");
+        mapped.put("abstracts", abs != null ? abs : "");
+        // 关键词
+        JSONArray keywords = new JSONArray();
+        JSONArray kw = item.getJSONArray("subj-class-kwd_kwdIK");
+        if (kw != null && kw.size() > 0 && kw.get(0) instanceof JSONArray) {
+            JSONArray inner = kw.getJSONArray(0);
+            for (int i = 0; i < inner.size(); i++) {
+                Object val = inner.get(i);
+                if (val instanceof JSONArray) {
+                    keywords.add(((JSONArray)val).getString(0));
+                } else {
+                    keywords.add(val.toString());
+                }
+            }
+        }
+        mapped.put("keyword", keywords);
+        String journal = item.getString("source_source-title-cn") != null ? item.getString("source_source-title-cn") :
+                        item.getString("source_source-title");
+        mapped.put("journal", journal != null ? journal : "");
+        mapped.put("year", item.getString("article_year") != null ? item.getString("article_year") : "");
+        mapped.put("date", item.getString("date") != null ? item.getString("date") : "");
+        mapped.put("issn", item.getString("source_issn") != null ? item.getString("source_issn") : "");
+        mapped.put("link", item.getString("access_ext-link-display") != null ? item.getString("access_ext-link-display") : "");
+        mapped.put("type", item.getString("article_article-type-display") != null ? item.getString("article_article-type-display") : "期刊论文");
+        mapped.put("doi", "");
+        mapped.put("subject", new JSONArray());
+        mapped.put("institution", new JSONArray());
+        mapped.put("publisher", "");
+        mapped.put("volume", "");
+        mapped.put("issue", "");
+        mapped.put("start_page", "");
+        mapped.put("funding", "");
+        mapped.put("collection", new JSONArray());
+        mapped.put("license", "");
+        return mapped;
+    }
+
     public BaseMessage<JSONObject> listArticleAggregations(ArticleQuery articleQuery) {
         ESResult query = esArticleService.query(searchSourceBuilder -> {
             Map<String, String> aggregations = articleQuery.getAggregations();
@@ -159,7 +295,7 @@ public class ArticleServiceImpl {
         List<JSONObject> jsonList = esArticleService.getJsonList(hits);
         JSONObject result = new JSONObject();
         if (CollectionUtil.isNotEmpty(jsonList)) {
-            result = jsonList.get(0);
+            result = mapArticleFields(jsonList.get(0));
         }
         return BaseMessage.success(result);
     }
@@ -193,11 +329,12 @@ public class ArticleServiceImpl {
             searchSourceBuilder.from(0).size(size);
         });
         List<JSONObject> jsonList = esArticleService.getJsonList(query.getHits());
-//        for (JSONObject jsonObject : jsonList) {
-//            System.out.println(jsonObject.toJSONString());
-//        }
+        List<JSONObject> mappedList = new ArrayList<>();
+        for (JSONObject item : jsonList) {
+            mappedList.add(mapArticleFields(item));
+        }
         JSONObject result = new JSONObject();
-        result.put("content", jsonList);
+        result.put("content", mappedList);
         result.put("total", query.getTotal());
         return BaseMessage.success(result);
     }
