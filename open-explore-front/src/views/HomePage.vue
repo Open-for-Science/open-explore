@@ -63,7 +63,7 @@
     </section>
 
     <!-- ============================================================ -->
-    <!-- 2. 统计栏（四个统计数字，前两个后端动态查询，后两个硬编码）       -->
+    <!-- 2. 统计栏（四个统计数字，均由后端动态查询）                         -->
     <!-- ============================================================ -->
     <section class="Stats__section">
       <div class="Stats__inner">
@@ -79,16 +79,16 @@
           <span class="Stats__label">{{ $t('stats.scienceDataTotal') }}</span>
         </div>
         <div class="Stats__divider"></div>
-        <!-- 统计项 3：XX 总量（硬编码） -->
+        <!-- 统计项 3：科学软件总量 -->
         <div class="Stats__item">
           <span class="Stats__num">{{ statsData.softwareTotal }}</span>
-          <span class="Stats__label">{{ $t('stats.xxTotal1') }}</span>
+          <span class="Stats__label">{{ $t('stats.softwareTotal') }}</span>
         </div>
         <div class="Stats__divider"></div>
-        <!-- 统计项 4：XX 总量（硬编码） -->
+        <!-- 统计项 4：科学装置总量 -->
         <div class="Stats__item">
           <span class="Stats__num">{{ statsData.facilityTotal }}</span>
-          <span class="Stats__label">{{ $t('stats.xxTotal2') }}</span>
+          <span class="Stats__label">{{ $t('stats.facilityTotal') }}</span>
         </div>
         <div class="Stats__divider"></div>
       </div>
