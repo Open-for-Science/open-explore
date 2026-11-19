@@ -39,9 +39,13 @@
               <span class="meta-key">Programming Language</span>
               <span class="meta-val">{{ record['programming-language'] }}</span>
             </div>
-            <div class="meta-item" v-if="record.platform">
-              <span class="meta-key">Platform</span>
-              <span class="meta-val">{{ record.platform }}</span>
+            <div class="meta-item" v-if="record['resource-type']">
+              <span class="meta-key">Resource Type</span>
+              <span class="meta-val">{{ record['resource-type'] }}</span>
+            </div>
+            <div class="meta-item" v-if="record.category">
+              <span class="meta-key">Category</span>
+              <span class="meta-val">{{ record.category }}</span>
             </div>
             <div class="meta-item" v-if="record.license">
               <span class="meta-key">License</span>
@@ -67,13 +71,16 @@
       <div class="spinner"></div>
       <p>Loading...</p>
     </div>
+    <ToTop />
   </div>
 </template>
 
 <script>
 import { SearchSoftwareDetail } from '@/service/SoftwareSearch'
+import ToTop from '@/components/ToTop.vue'
 
 export default {
+  components: { ToTop },
   data() { return { record: null } },
   created() { this.loadDetail() },
   methods: {
@@ -92,30 +99,6 @@ export default {
 }
 </script>
 
-<style scoped>
-.fullscreen-reader { min-height: 100vh; background: #fff; }
-.top-toolbar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; height: 56px; padding: 0 24px; background: #fff; border-bottom: 1px solid #e5e7eb; }
-.back-btn { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; font-size: 14px; color: #374151; }
-.back-btn:hover { color: #2563eb; }
-.toolbar-divider { flex: 1; }
-.reader-main { max-width: 800px; margin: 0 auto; padding: 40px 24px; }
-.article-title { font-size: 28px; font-weight: 700; color: #111; line-height: 1.3; margin-bottom: 12px; }
-.journal-meta { font-size: 14px; color: #6b7280; margin-bottom: 24px; }
-.meta-dot { margin: 0 8px; }
-.card { background: #f9fafb; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
-.section-title { font-size: 18px; font-weight: 600; margin-bottom: 12px; color: #111; }
-.sub-title { font-size: 16px; font-weight: 600; margin-bottom: 10px; color: #111; }
-.abstract-body { font-size: 15px; line-height: 1.8; color: #374151; }
-.keyword-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
-.keyword-pill { padding: 4px 12px; background: #e5e7eb; border-radius: 16px; font-size: 13px; color: #374151; }
-.facility-image-wrap { margin-bottom: 20px; border-radius: 12px; overflow: hidden; max-height: 400px; }
-.facility-image { width: 100%; height: auto; max-height: 400px; object-fit: cover; display: block; }
-.meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.meta-item { display: flex; flex-direction: column; }
-.meta-key { font-size: 12px; color: #9ca3af; text-transform: uppercase; margin-bottom: 4px; }
-.meta-val { font-size: 14px; color: #111; }
-.meta-val a { color: #2563eb; word-break: break-all; }
-.loading-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; color: #9ca3af; }
-.spinner { width: 32px; height: 32px; border: 3px solid #e5e7eb; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.6s linear infinite; margin-bottom: 12px; }
-@keyframes spin { to { transform: rotate(360deg); } }
+<style scoped lang="scss">
+@import '~@/assets/detail.scss';
 </style>

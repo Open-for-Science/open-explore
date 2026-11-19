@@ -1,0 +1,225 @@
+{
+  "os_10_software_v1": {
+    "aliases": {},
+    "mappings": {
+      "os_10_software": {
+        "dynamic": "strict",
+        "properties": {
+          "abstracts_ik": {
+            "type": "string",
+            "store": true,
+            "analyzer": "ik_max_word"
+          },
+          "aggregated_source": {
+            "type": "string",
+            "store": true,
+            "analyzer": "lower_keyword"
+          },
+          "author_name": {
+            "type": "string",
+            "index": "not_analyzed",
+            "store": true,
+            "copy_to": [
+              "author_name_ik"
+            ]
+          },
+          "author_name_ik": {
+            "type": "string",
+            "store": true,
+            "analyzer": "ik_max_word"
+          },
+          "category": {
+            "type": "string",
+            "store": true,
+            "analyzer": "lower_keyword"
+          },
+          "create_year": {
+            "type": "string",
+            "store": true,
+            "analyzer": "lower_keyword"
+          },
+          "created_time": {
+            "type": "string",
+            "store": true,
+            "analyzer": "lower_keyword"
+          },
+          "description": {
+            "type": "string",
+            "index": "not_analyzed",
+            "store": true,
+            "copy_to": [
+              "abstracts_ik",
+              "description_ik"
+            ]
+          },
+          "description_ik": {
+            "type": "string",
+            "store": true,
+            "analyzer": "ik_max_word"
+          },
+          "detail_json": {
+            "type": "string",
+            "index": "no",
+            "store": true
+          },
+          "detail_url": {
+            "type": "string",
+            "index": "no",
+            "store": true
+          },
+          "harvest_time": {
+            "type": "string",
+            "store": true,
+            "analyzer": "lower_keyword"
+          },
+          "homepage": {
+            "type": "string",
+            "index": "no",
+            "store": true
+          },
+          "keyword_ik": {
+            "type": "string",
+            "store": true,
+            "analyzer": "ik_max_word"
+          },
+          "language_main": {
+            "type": "string",
+            "store": true,
+            "analyzer": "lower_keyword"
+          },
+          "last_sync_time": {
+            "type": "string",
+            "store": true,
+            "analyzer": "lower_keyword"
+          },
+          "license": {
+            "type": "string",
+            "store": true,
+            "analyzer": "lower_keyword"
+          },
+          "name": {
+            "type": "string",
+            "index": "not_analyzed",
+            "store": true,
+            "copy_to": [
+              "title_ik"
+            ]
+          },
+          "organization": {
+            "type": "string",
+            "index": "not_analyzed",
+            "store": true,
+            "copy_to": [
+              "organization_ik"
+            ]
+          },
+          "organization_ik": {
+            "type": "string",
+            "store": true,
+            "analyzer": "ik_max_word"
+          },
+          "pub_year": {
+            "type": "string",
+            "index": "not_analyzed",
+            "store": true
+          },
+          "publish_time": {
+            "type": "string",
+            "index": "not_analyzed",
+            "store": true
+          },
+          "recommend_date": {
+            "type": "string",
+            "index": "not_analyzed",
+            "store": true
+          },
+          "resource_type": {
+            "type": "string",
+            "store": true,
+            "analyzer": "lower_keyword"
+          },
+          "size": {
+            "type": "string",
+            "store": true,
+            "analyzer": "lower_keyword"
+          },
+          "source": {
+            "type": "string",
+            "store": true,
+            "analyzer": "lower_keyword"
+          },
+          "status": {
+            "type": "string",
+            "store": true,
+            "analyzer": "lower_keyword"
+          },
+          "tag": {
+            "type": "string",
+            "index": "not_analyzed",
+            "store": true,
+            "copy_to": [
+              "keyword_ik",
+              "tag_ik"
+            ]
+          },
+          "tag_ik": {
+            "type": "string",
+            "store": true,
+            "analyzer": "ik_max_word"
+          },
+          "title": {
+            "type": "string",
+            "index": "not_analyzed",
+            "store": true,
+            "copy_to": [
+              "title_ik"
+            ]
+          },
+          "title_ik": {
+            "type": "string",
+            "store": true,
+            "analyzer": "ik_max_word"
+          },
+          "update_time": {
+            "type": "string",
+            "store": true,
+            "analyzer": "lower_keyword"
+          },
+          "update_year": {
+            "type": "string",
+            "store": true,
+            "analyzer": "lower_keyword"
+          },
+          "uuid": {
+            "type": "string",
+            "index": "not_analyzed",
+            "store": true
+          }
+        }
+      }
+    },
+    "settings": {
+      "index": {
+        "creation_date": "1795059156473",
+        "uuid": "Kk-RYEZYT36WSBn0Jsk8SA",
+        "analysis": {
+          "analyzer": {
+            "lower_keyword": {
+              "type": "custom",
+              "filter": [
+                "lowercase"
+              ],
+              "tokenizer": "keyword"
+            }
+          }
+        },
+        "number_of_replicas": "1",
+        "number_of_shards": "5",
+        "version": {
+          "created": "2030499"
+        }
+      }
+    },
+    "warmers": {}
+  }
+}

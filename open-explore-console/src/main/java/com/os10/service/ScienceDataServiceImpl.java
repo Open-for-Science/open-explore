@@ -274,7 +274,7 @@ public class ScienceDataServiceImpl {
             flat.put("pub-year", record.getString("pub-year"));
             flat.put("dataset-id", record.getString("dataset-id"));
             flat.put("dataset-type", record.getString("dataset-type"));
-            flat.put("type", "sciencedata");
+            flat.put("type", record.getString("type"));
             flat.put("lang", record.getString("lang"));
             flat.put("size", record.getString("size"));
             flat.put("file-count", record.getString("file-count"));

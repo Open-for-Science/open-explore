@@ -17,11 +17,9 @@
           </div>
           <h1 class="article-title">{{ record.title || record['title-en'] || 'Untitled' }}</h1>
           <div class="journal-meta">
-            <span class="journal-name" v-if="record['facility-type']">{{ record['facility-type'] }}</span>
-            <span class="meta-dot" v-if="record['facility-type'] && record['pub-year']">·</span>
-            <span class="journal-year" v-if="record['pub-year']">{{ record['pub-year'] }}</span>
-            <span class="meta-dot" v-if="record['pub-year'] && record['facility-location']">·</span>
-            <span v-if="record['facility-location']">{{ record['facility-location'] }}</span>
+            <span class="journal-name" v-if="record.hosting_institution">{{ record.hosting_institution }}</span>
+            <span class="meta-dot" v-if="record.hosting_institution && record.country">·</span>
+            <span class="journal-year" v-if="record.country">{{ record.country }}</span>
           </div>
         </section>
         <section class="abstract-section card" v-if="record.abstracts || record['abstract-en'] || record.description_information">
@@ -37,33 +35,48 @@
         <section class="metadata-section card">
           <h3 class="sub-title">Facility Information</h3>
           <div class="meta-grid">
-            <div class="meta-item" v-if="record['facility-name']">
-              <span class="meta-key">Facility Name</span>
-              <span class="meta-val">{{ record['facility-name'] }}</span>
+            <div class="meta-item" v-if="record.cstr">
+              <span class="meta-key">CSTR</span>
+              <span class="meta-val">{{ record.cstr }}</span>
             </div>
-            <div class="meta-item" v-if="record['facility-type']">
-              <span class="meta-key">Type</span>
-              <span class="meta-val">{{ record['facility-type'] }}</span>
+            <div class="meta-item" v-if="record.country">
+              <span class="meta-key">Country</span>
+              <span class="meta-val">{{ record.country }}</span>
             </div>
-            <div class="meta-item" v-if="record['facility-location']">
-              <span class="meta-key">Location</span>
-              <span class="meta-val">{{ record['facility-location'] }}</span>
+            <div class="meta-item" v-if="record.hosting_institution">
+              <span class="meta-key">Hosting Institution</span>
+              <span class="meta-val">{{ record.hosting_institution }}</span>
             </div>
-            <div class="meta-item" v-if="record['facility-status']">
-              <span class="meta-key">Status</span>
-              <span class="meta-val">{{ record['facility-status'] }}</span>
+            <div class="meta-item" v-if="record.contact_information">
+              <span class="meta-key">Contact</span>
+              <span class="meta-val contact-val">{{ record.contact_information }}</span>
             </div>
-            <div class="meta-item" v-if="record['operation-year']">
-              <span class="meta-key">Operation Year</span>
-              <span class="meta-val">{{ record['operation-year'] }}</span>
+            <div class="meta-item" v-if="record.update_time">
+              <span class="meta-key">Updated</span>
+              <span class="meta-val">{{ record.update_time }}</span>
             </div>
-            <div class="meta-item" v-if="record.doi">
-              <span class="meta-key">DOI</span>
-              <span class="meta-val">{{ record.doi }}</span>
+          </div>
+        </section>
+
+        <!-- 相关链接 -->
+        <section class="metadata-section card" v-if="record.detail_link || record.application_guide || record.equipments || record.use_cases">
+          <h3 class="sub-title">Links</h3>
+          <div class="meta-grid">
+            <div class="meta-item" v-if="record.detail_link">
+              <span class="meta-key">Facility Detail</span>
+              <span class="meta-val"><a :href="record.detail_link" target="_blank" rel="noopener">{{ record.detail_link }}</a></span>
             </div>
-            <div class="meta-item" v-if="record['pub-date']">
-              <span class="meta-key">Publication Date</span>
-              <span class="meta-val">{{ record['pub-date'] }}</span>
+            <div class="meta-item" v-if="record.application_guide">
+              <span class="meta-key">Application Guide</span>
+              <span class="meta-val"><a :href="record.application_guide" target="_blank" rel="noopener">{{ record.application_guide }}</a></span>
+            </div>
+            <div class="meta-item" v-if="record.equipments">
+              <span class="meta-key">Equipment</span>
+              <span class="meta-val"><a :href="record.equipments" target="_blank" rel="noopener">{{ record.equipments }}</a></span>
+            </div>
+            <div class="meta-item" v-if="record.use_cases">
+              <span class="meta-key">User Cases</span>
+              <span class="meta-val"><a :href="record.use_cases" target="_blank" rel="noopener">{{ record.use_cases }}</a></span>
             </div>
           </div>
         </section>
@@ -73,13 +86,16 @@
       <div class="spinner"></div>
       <p>Loading...</p>
     </div>
+    <ToTop />
   </div>
 </template>
 
 <script>
 import { SearchFacilityDetail } from '@/service/FacilitySearch'
+import ToTop from '@/components/ToTop.vue'
 
 export default {
+  components: { ToTop },
   data() { return { record: null } },
   created() { this.loadDetail() },
   methods: {
@@ -98,30 +114,6 @@ export default {
 }
 </script>
 
-<style scoped>
-.fullscreen-reader { min-height: 100vh; background: #fff; }
-.top-toolbar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; height: 56px; padding: 0 24px; background: #fff; border-bottom: 1px solid #e5e7eb; }
-.back-btn { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; font-size: 14px; color: #374151; }
-.back-btn:hover { color: #2563eb; }
-.toolbar-divider { flex: 1; }
-.reader-main { max-width: 800px; margin: 0 auto; padding: 40px 24px; }
-.article-title { font-size: 28px; font-weight: 700; color: #111; line-height: 1.3; margin-bottom: 12px; }
-.journal-meta { font-size: 14px; color: #6b7280; margin-bottom: 24px; }
-.meta-dot { margin: 0 8px; }
-.card { background: #f9fafb; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
-.section-title { font-size: 18px; font-weight: 600; margin-bottom: 12px; color: #111; }
-.sub-title { font-size: 16px; font-weight: 600; margin-bottom: 10px; color: #111; }
-.abstract-body { font-size: 15px; line-height: 1.8; color: #374151; }
-.keyword-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
-.keyword-pill { padding: 4px 12px; background: #e5e7eb; border-radius: 16px; font-size: 13px; color: #374151; }
-.facility-image-wrap { margin-bottom: 20px; border-radius: 12px; overflow: hidden; max-height: 400px; }
-.facility-image { width: 100%; height: auto; max-height: 400px; object-fit: cover; display: block; }
-.meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.meta-item { display: flex; flex-direction: column; }
-.meta-key { font-size: 12px; color: #9ca3af; text-transform: uppercase; margin-bottom: 4px; }
-.meta-val { font-size: 14px; color: #111; }
-.meta-val a { color: #2563eb; word-break: break-all; }
-.loading-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; color: #9ca3af; }
-.spinner { width: 32px; height: 32px; border: 3px solid #e5e7eb; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.6s linear infinite; margin-bottom: 12px; }
-@keyframes spin { to { transform: rotate(360deg); } }
+<style scoped lang="scss">
+@import '~@/assets/detail.scss';
 </style>

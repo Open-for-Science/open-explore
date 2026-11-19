@@ -95,10 +95,8 @@ public class FacilityServiceImpl {
             Map<String, String> aggregations = facilityQuery.getAggregations();
             if (CollectionUtil.isEmpty(aggregations)) {
                 aggregations = new HashMap<>();
-                aggregations.put("facility-type", "");
-                aggregations.put("facility-status", "");
-                aggregations.put("pub-year", "");
-                aggregations.put("facility-location", "");
+                aggregations.put("country", "");
+                aggregations.put("hosting_institution", "");
             }
             searchSourceBuilder.size(0);
             BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -132,7 +130,7 @@ public class FacilityServiceImpl {
     public BaseMessage listLatestFacility(int size) {
         ESResult query = esFacilityService.query(searchSourceBuilder -> {
             searchSourceBuilder.query(QueryBuilders.matchAllQuery());
-            searchSourceBuilder.sort("pub-date", SortOrder.DESC);
+            searchSourceBuilder.sort("update_time", SortOrder.DESC);
             searchSourceBuilder.from(0).size(size);
         });
         List<JSONObject> jsonList = esFacilityService.getJsonList(query.getHits());

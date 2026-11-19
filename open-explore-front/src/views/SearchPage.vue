@@ -1,14 +1,14 @@
 <template>
-  <div class="Search__page">
-    <!-- 左侧聚合面板 -->
-    <div class="Agg__wrap">
-      <base-scrollbar style="height: 100%;">
-        <div class="Agg__items">
-          <div class="Agg__title">
-            {{$t('search.filterTitle')}}
+  <div class="Explore__page">
+    <div class="ContentLayout">
+      <!-- 左侧聚合筛选 -->
+      <aside class="ContentLayout__sideColumn">
+        <div class="AppSearchAggregation">
+          <div class="AppSearchAggregation__label">
+            <i class="base-icon-menu"></i>{{ $t('search.filterTitle') }}
           </div>
           <base-skeleton v-if="aggsLoading" :rows="6" animated />
-          <div v-if="!aggsLoading">
+          <template v-else>
             <AggsItemV
               v-for="item,index in aggs"
               :key="'agg' + index"
@@ -17,127 +17,144 @@
               :checkList.sync="item.selected_aggregation"
               @change="handleAggChange"
             />
+          </template>
+        </div>
+      </aside>
+
+      <!-- 右侧结果区 -->
+      <div class="ContentLayout__mainColumn">
+        <!-- 资源类型 Tab -->
+        <div class="AppSearchTabsShell">
+          <div class="AppSearchTabs">
+            <div
+              v-for="t in resourceTabs"
+              :key="t.key"
+              class="AppSearchTab"
+              :class="{ 'is-active': activeTab === t.key }"
+              @click="switchResourceTab(t.key)"
+            >
+              {{ $t('search.tab.' + t.key) }}
+            </div>
           </div>
         </div>
-      </base-scrollbar>
-    </div>
 
-    <!-- 右侧主搜索区域 -->
-    <div class="Search__wrap">
-      <!-- 子导航 Tab：4 种资源类型 -->
-      <div class="SubTabs">
-        <div
-          v-for="t in resourceTabs"
-          :key="t.key"
-          class="SubTabs__tab"
-          :class="{ 'SubTabs__tab--active': activeTab === t.key }"
-          @click="switchResourceTab(t.key)"
-        >
-          <span>{{ $t('search.tab.' + t.key) }}</span>
-        </div>
-      </div>
-
-      <div class="Search__content">
-        <div class="Search__info">
-          <input
-            v-model="searchText"
-            type="text"
-            :placeholder="currentTabPlaceholder"
-            @keyup.enter="handleSearch"
-          />
-          <div class="Search__btn" @click="handleSearch">
-            <i class="base-icon-search"></i>&nbsp;{{$t('search.searchBtn')}}
+        <!-- 筛选栏 -->
+        <div class="AppSearchFilters">
+          <div class="AppFilterMeta MetaCounting">
+            {{ $t('search.totalResults', { n: total }) }}
+          </div>
+          <div class="AppSearchFilterItems">
+            <div class="AppFilterInput">
+              <base-input
+                v-model="searchText"
+                size="small"
+                :ripple="false"
+                :show-label="false"
+                :placeholder="currentTabPlaceholder"
+                @key-up-enter="handleSearch"
+              >
+                <i
+                  class="base-icon-search base-input__icon"
+                  slot="suffix"
+                  :class="{ 'is-disabled': !searchText }"
+                  @mousedown.prevent="handleSearch"
+                ></i>
+              </base-input>
+            </div>
+            <button type="button" class="AppSearchSubmit" @click="handleSearch">
+              {{ $t('search.searchBtn') }}
+            </button>
           </div>
         </div>
-      </div>
 
-      <!-- 筛选条件标签 -->
-      <div class="Filterd__wrap" v-if="fiterConditions.length">
-        <div>{{$t('search.filterConditions')}}</div>
-        <div class="Filterd__item" v-for="item,index in fiterConditions" :key="'fiterConditions' + index">
-          <span>{{item.label}}：</span>
-          {{item.value}}
-          <i class="base-icon-close" @click="handleClearSearch(item)"></i>
+        <!-- 已选筛选条件 -->
+        <div class="AppSearchRefineItems" v-if="fiterConditions.length">
+          <div class="AppSearchRefineLabel">{{ $t('search.filterConditions') }}</div>
+          <div class="AppSearchRefineItem" v-for="item,index in fiterConditions" :key="'fiterConditions' + index">
+            <span class="AppSearchRefineItemText">{{ item.label }}：{{ item.value }}</span>
+            <i class="base-icon-close" @click="handleClearSearch(item)"></i>
+          </div>
+          <div class="AppSearchRefineAction" @click="handleClearAll">
+            <i class="base-icon-delete"></i>{{ $t('search.clearAll') }}
+          </div>
         </div>
-        <div class="Filterd__clean--btn" @click="handleClearAll">
-          <i class="base-icon-delete"></i>{{$t('search.clearAll')}}
-        </div>
-      </div>
 
-      <div class="Total__wrap">
-        <div class="Total__text">{{$t('search.totalResults', {n: total})}}</div>
-      </div>
+        <!-- 结果列表 -->
+        <div class="List">
+          <div
+            class="List__item"
+            v-for="(item,index) in tableData"
+            :key="'tableData' + index"
+            @click="handleTitleClick(item)"
+          >
+            <div class="List__itemIndex">{{ (searchParams.page - 1) * searchParams.size + index + 1 }}.</div>
+            <div class="List__itemBody">
+              <div class="List__itemInner">
+                <div class="List__itemMain">
+                  <h3 class="List__itemTitle">{{ item.title }}</h3>
 
-      <div class="Result__wrap">
-        <template v-for="(item,index) in tableData">
-          <div :key="'tableData' + index" class="RichCard" :class="'RichCard--' + activeTab" :style="{animationDelay: 0.06 * index + 's'}" @click="handleTitleClick(item)">
-            <div class="RichCard__index">{{(searchParams.page - 1) * searchParams.size + index + 1}}</div>
-            <div class="RichCard__inner">
-              <!-- 有图的类型显示图片 -->
-              <div class="RichCard__pic" v-if="(activeTab === 'facility' || activeTab === 'software') && item.image">
-                <img :src="item.image" :alt="item.title" @error="e => e.target.style.display='none'" />
-              </div>
-              <div class="RichCard__body">
-                <h3 class="RichCard__title">{{ item.title }}</h3>
-                <!-- 描述/摘要: 按类型取不同字段 -->
-                <p class="RichCard__desc" v-if="activeTab === 'facility' && item.description_information">{{ truncate(item.description_information, 120) }}</p>
-                <p class="RichCard__desc" v-if="activeTab === 'software' && item.description">{{ truncate(item.description, 120) }}</p>
-                <p class="RichCard__desc" v-if="activeTab === 'article' && item.abstracts">{{ truncate(item.abstracts, 150) }}</p>
-                <p class="RichCard__desc" v-if="activeTab === 'sciencedata' && (item.description || item.abstracts)">{{ truncate(item.description || item.abstracts, 150) }}</p>
+                  <p class="List__itemDesc" v-if="activeTab === 'facility' && item.description_information">{{ truncate(item.description_information, 180) }}</p>
+                  <p class="List__itemDesc" v-if="activeTab === 'software' && item.description">{{ truncate(item.description, 180) }}</p>
+                  <p class="List__itemDesc" v-if="activeTab === 'article' && item.abstracts && item.abstracts !== 'null'">{{ truncate(item.abstracts, 220) }}</p>
+                  <p class="List__itemDesc" v-if="activeTab === 'sciencedata' && (item.description || item.abstracts)">{{ truncate(item.description || item.abstracts, 220) }}</p>
 
-                <div class="RichCard__meta">
-                  <!-- 设施标签 -->
-                  <template v-if="activeTab === 'facility'">
-                    <span class="RichCard__tag RichCard__tag--type" v-if="item['facility-type']">{{ item['facility-type'] }}</span>
-                    <span class="RichCard__tag RichCard__tag--status" v-if="item['facility-status']">{{ item['facility-status'] }}</span>
-                    <span class="RichCard__meta-item" v-if="item['facility-location']">📍 {{ item['facility-location'] }}</span>
-                    <span class="RichCard__meta-item" v-if="item['hosting_institution']">🏛 {{ item['hosting_institution'] }}</span>
-                    <span class="RichCard__meta-item RichCard__meta-item--year" v-if="item['pub-year']">📅 {{ item['pub-year'] }}</span>
-                  </template>
-                  <!-- 软件标签 -->
-                  <template v-if="activeTab === 'software'">
-                    <span class="RichCard__tag RichCard__tag--type" v-if="item.category">{{ item.category }}</span>
-                    <span class="RichCard__tag RichCard__tag--license" v-if="item.license">{{ item.license }}</span>
-                    <span class="RichCard__meta-item" v-if="item.organization">🏛 {{ item.organization }}</span>
-                    <span class="RichCard__meta-item RichCard__meta-item--year" v-if="item['pub-year']">📅 {{ item['pub-year'] }}</span>
-                  </template>
-                  <!-- 文献标签 -->
-                  <template v-if="activeTab === 'article'">
-                    <span class="RichCard__tag RichCard__tag--type" v-if="item.type">{{ item.type }}</span>
-                    <span class="RichCard__tag RichCard__tag--journal" v-if="item.journal">{{ item.journal }}</span>
-                    <span class="RichCard__meta-item" v-if="item.author && item.author.length">✍️ {{ item.author.slice(0,3).join('; ') }}{{ item.author.length > 3 ? ' et al.' : '' }}</span>
-                    <span class="RichCard__meta-item" v-if="item.publisher">📚 {{ item.publisher }}</span>
-                    <span class="RichCard__meta-item RichCard__meta-item--year" v-if="item.year || item['pub-year']">📅 {{ item.year || item['pub-year'] }}</span>
-                  </template>
-                  <!-- 科学数据标签 -->
-                  <template v-if="activeTab === 'sciencedata'">
-                    <span class="RichCard__tag RichCard__tag--type" v-if="item['dataset-type']">{{ item['dataset-type'] }}</span>
-                    <span class="RichCard__meta-item" v-if="item.author && item.author.length">🏛 {{ item.author.slice(0,2).join('; ') }}</span>
-                    <span class="RichCard__meta-item RichCard__meta-item--year" v-if="item['pub-year']">📅 {{ item['pub-year'] }}</span>
-                  </template>
+                  <div class="List__itemMeta">
+                    <!-- 设施 -->
+                    <template v-if="activeTab === 'facility'">
+                      <span class="List__itemTag" v-if="item.country">{{ item.country }}</span>
+                      <span class="List__itemMetaItem" v-if="item.hosting_institution">{{ item.hosting_institution }}</span>
+                      <span class="List__itemMetaItem" v-if="item.cstr">{{ item.cstr }}</span>
+                    </template>
+                    <!-- 软件 -->
+                    <template v-if="activeTab === 'software'">
+                      <span class="List__itemTag" v-if="item.category">{{ item.category }}</span>
+                      <span class="List__itemTag" v-if="item.license">{{ item.license }}</span>
+                      <span class="List__itemMetaItem" v-if="item.organization">{{ item.organization }}</span>
+                      <span class="List__itemMetaItem List__itemMetaItem--year" v-if="item['pub-year']">{{ item['pub-year'] }}</span>
+                    </template>
+                    <!-- 文献 -->
+                    <template v-if="activeTab === 'article'">
+                      <span class="List__itemTag" v-if="item.type">{{ item.type }}</span>
+                      <span class="List__itemTag" v-if="item.journal">{{ item.journal }}</span>
+                      <span class="List__itemMetaItem" v-if="item.author && item.author.length">{{ item.author.slice(0,3).join('; ') }}{{ item.author.length > 3 ? ' et al.' : '' }}</span>
+                      <span class="List__itemMetaItem" v-if="item.publisher">{{ item.publisher }}</span>
+                      <span class="List__itemMetaItem List__itemMetaItem--year" v-if="item.year || item['pub-year']">{{ item.year || item['pub-year'] }}</span>
+                    </template>
+                    <!-- 科学数据 -->
+                    <template v-if="activeTab === 'sciencedata'">
+                      <span class="List__itemTag" v-if="item['dataset-type']">{{ item['dataset-type'] }}</span>
+                      <span class="List__itemMetaItem" v-if="item.author && item.author.length">{{ item.author.slice(0,2).join('; ') }}</span>
+                      <span class="List__itemMetaItem List__itemMetaItem--year" v-if="item['pub-year']">{{ item['pub-year'] }}</span>
+                    </template>
+                  </div>
+
+                  <div class="List__itemExtra" v-if="(activeTab === 'article' || activeTab === 'sciencedata') && (item.doi || item.issn)">
+                    <span v-if="item.doi">DOI: {{ item.doi }}</span>
+                    <span v-if="item.issn">ISSN: {{ item.issn }}</span>
+                  </div>
                 </div>
-                <div class="RichCard__extra" v-if="(activeTab === 'article' || activeTab === 'sciencedata') && (item.doi || item.issn)">
-                  <span v-if="item.doi" class="RichCard__extra-item">DOI: {{ item.doi }}</span>
-                  <span v-if="item.issn" class="RichCard__extra-item">ISSN: {{ item.issn }}</span>
+
+                <div class="List__itemCover" v-if="(activeTab === 'facility' || activeTab === 'software') && item.image">
+                  <img :src="item.image" :alt="item.title" @error="e => e.target.parentNode.style.display = 'none'" />
                 </div>
               </div>
             </div>
           </div>
-        </template>
-      </div>
+        </div>
 
-      <div style="margin-top:12px;width:100%;display:flex;justify-content: center;">
-        <base-pagination
-          background
-          layout="prev, pager, next"
-          :page-size="searchParams.size"
-          @current-change="handleSearch()"
-          :current-page.sync="searchParams.page"
-          :total="total > 10000 ? 10000 : total"
-        />
-      </div>
+        <div class="AppSearchPagination">
+          <base-pagination
+            background
+            layout="prev, pager, next"
+            :page-size="searchParams.size"
+            @current-change="handleSearch()"
+            :current-page.sync="searchParams.page"
+            :total="total > 10000 ? 10000 : total"
+          />
+        </div>
 
-      <ToTop />
+        <ToTop />
+      </div>
     </div>
   </div>
 </template>
@@ -166,6 +183,23 @@ const RESOURCE_TABS = [
  * 资源类型对应的聚合别名映射
  */
 const ALIAS_MAP = {
+  article: {
+    subject: 'search.agg.subject',
+    journal: 'search.agg.journal',
+    year: 'search.agg.year',
+    type: 'search.agg.type'
+  },
+  facility: {
+    country: 'search.agg.country',
+    hosting_institution: 'search.agg.institution'
+  },
+  software: {
+    resource_type: 'search.agg.resourceType',
+    category: 'search.agg.category',
+    language_main: 'search.agg.language',
+    license: 'search.agg.license',
+    pub_year: 'search.agg.year'
+  },
   sciencedata: {
     'record.classification.first': 'search.agg.classificationFirst',
     'record.classification.second': 'search.agg.classificationSecond',
@@ -360,7 +394,7 @@ export default {
         const aliasMap = ALIAS_MAP[this.activeTab] || {}
         this.aggs = Object.keys(data || {}).map(key => ({
           key,
-          alias: aliasMap[key] || key,
+          alias: aliasMap[key] ? this.$t(aliasMap[key]) : key,
           aggregations: data[key].buckets,
           selected_aggregation: this.aggs.find(item => item.key === key)?.selected_aggregation || []
         }))
@@ -377,496 +411,574 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '~@zkwq/business/dist/var.scss';
+// ===== 设计变量（对齐 pubscholar ExplorePageV2 资源浏览风格）=====
+$accent: #1d4ed8;
+$accent-2: #0f86c6;
+$text-main: #0f172a;
+$text-sub: #64748b;
+$text-mute: #95a3b8;
+$line: #dfe8f5;
+$card-bg: rgba(255, 255, 255, 0.92);
 
-// ===== Global Design Tokens =====
-$brand: #2F3A91;
-$brand-light: rgba(47,58,145,0.06);
-$bg-soft: #f6f8fc;
-$bg-card: #ffffff;
-$border-soft: #e9ecf2;
-$text-primary: #1a1f36;
-$text-secondary: #5a6070;
-$text-muted: #8e96ab;
-
-.Search__page {
+.Explore__page {
   width: 100%;
   height: 100%;
-  overflow: hidden;
   display: flex;
-  gap: 0;
-  background: $bg-soft;
+  overflow: hidden;
+  box-sizing: border-box;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(29, 78, 216, 0.16) 0, rgba(29, 78, 216, 0) 34%),
+    radial-gradient(circle at 92% 8%, rgba(8, 145, 178, 0.14) 0, rgba(8, 145, 178, 0) 32%),
+    linear-gradient(180deg, #f5f8fc 0%, #eef4fb 46%, #f8fafc 100%);
+}
 
-  // ===== Left Filter Panel =====
-  .Agg__wrap {
-    width: 280px;
-    height: 100%;
-    background: #fff;
-    border-right: 1px solid $border-soft;
-    flex-shrink: 0;
+.ContentLayout {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 24px;
+  box-sizing: border-box;
+}
 
-    .Agg__items {
-      padding: 20px 16px;
-      height: auto;
-      min-height: calc(100vh - 56px);
+// ===== 左侧聚合 =====
+.ContentLayout__sideColumn {
+  flex: 0 0 280px;
+  width: 280px;
+  max-height: 100%;
+  overflow-y: auto;
+  padding-right: 2px;
+  box-sizing: border-box;
+}
 
-      .Agg__title {
-        font-size: 15px;
-        font-weight: 700;
-        color: $text-primary;
-        text-align: left;
-        padding: 0 0 12px 4px;
-        height: auto;
-        line-height: normal;
-        letter-spacing: 0.3px;
-        position: relative;
+.AppSearchAggregation {
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 4px 10px;
+    color: $text-sub;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
 
-        &::after {
-          content: '';
-          display: block;
-          width: 24px;
-          height: 3px;
-          background: $brand;
-          border-radius: 2px;
-          margin-top: 8px;
-        }
-      }
-
-      ::v-deep .warp {
-        background: transparent;
-        margin-bottom: 2px;
-
-        .title__warp {
-          background: $bg-soft;
-          border-radius: 8px;
-          border: none;
-          padding: 8px 12px;
-          font-size: 13px;
-          font-weight: 600;
-          color: $text-primary;
-          transition: background 0.2s;
-
-          &:hover {
-            background: darken($bg-soft, 2%);
-          }
-        }
-      }
+    i {
+      font-size: 14px;
     }
   }
 
-  // ===== Right Content Area =====
-  .Search__wrap {
-    flex: 1;
-    height: 100%;
-    overflow-y: auto;
-    padding: 20px 24px;
-    position: relative;
+  ::v-deep .warp {
+    margin-bottom: 16px;
+    border: 1px solid rgba(223, 232, 245, 0.96);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 12px 34px rgba(15, 23, 42, 0.06);
+    overflow: hidden;
 
-    // ===== Sub Tabs =====
-    .SubTabs {
-      display: flex;
-      gap: 0;
-      margin-bottom: 20px;
-      background: #fff;
-      border-radius: 10px;
-      padding: 4px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    &:last-child {
+      margin-bottom: 0;
+    }
 
-      &__tab {
-        flex: 1;
-        padding: 10px 0;
-        text-align: center;
-        font-size: 14px;
-        font-weight: 500;
-        color: $text-muted;
-        cursor: pointer;
-        transition: all 0.25s ease;
-        border-radius: 8px;
-        position: relative;
+    .title__warp {
+      min-height: 44px;
+      padding: 10px 12px;
+      border: none;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 251, 255, 0.94));
+      color: #1f4f9a;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .title__warp .icon {
+      background: transparent;
+      padding: 0;
+      color: #7b8aa3;
+    }
+
+    .Search__wrap {
+      padding: 8px 12px;
+    }
+
+    .item_warp {
+      list-style: none;
+      margin: 0;
+      padding: 6px 6px 8px;
+
+      li {
+        padding: 8px 6px;
+        border-radius: 10px;
+        transition: background-color 0.2s;
+
+        &:first-of-type {
+          margin-top: 0;
+        }
+
+        &:last-of-type {
+          margin-bottom: 0;
+        }
 
         &:hover {
-          color: $text-primary;
-          background: $bg-soft;
+          background: #f1f7ff;
         }
 
-        &--active {
-          color: #fff;
-          font-weight: 600;
-          background: linear-gradient(135deg, $brand, #4A56A8);
-          box-shadow: 0 2px 8px rgba(47,58,145,0.20);
-          border: none;
-        }
-
-        span {
-          vertical-align: middle;
-        }
-      }
-    }
-
-    // ===== Search Bar (参考图风格 ~ pill shape with icon inside) =====
-    .Search__content {
-      margin-bottom: 16px;
-
-      .Search__info {
-        display: flex;
-        align-items: center;
-        background: #fff;
-        border-radius: 50px;
-        border: 2px solid $border-soft;
-        transition: all 0.3s;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-
-        &:focus-within {
-          border-color: $brand;
-          box-shadow: 0 0 0 4px rgba(47,58,145,0.08), 0 4px 12px rgba(0,0,0,0.06);
-        }
-
-        input {
-          flex: 1;
-          border: none;
-          outline: none;
-          padding: 14px 20px;
-          font-size: 15px;
-          color: $text-primary;
-          background: transparent;
-          height: auto;
-
-          &::placeholder {
-            color: $text-muted;
-          }
-        }
-        .Search__btn {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          padding: 10px 28px;
-          margin: 4px;
-          border-radius: 50px;
-          background: linear-gradient(135deg, $brand, #4A56A8);
-          color: #fff;
-          font-size: 15px;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.25s;
-          white-space: nowrap;
-          border: none;
-
-          &:hover {
-            transform: scale(1.03);
-            box-shadow: 0 4px 14px rgba(47,58,145,0.30);
-          }
-
-          i { font-size: 16px; }
-        }
-      }
-    }
-
-    // ===== Filter Tags =====
-    .Filterd__wrap {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      margin-bottom: 16px;
-      padding: 12px 16px;
-      background: #fff;
-      border-radius: 10px;
-      border: 1px solid $border-soft;
-
-      > div:first-child {
-        font-size: 12px;
-        font-weight: 600;
-        color: $text-muted;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-right: 4px;
-      }
-
-      .Filterd__item {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 6px 12px;
-        background: $bg-soft;
-        border-radius: 20px;
-        font-size: 13px;
-        color: $text-primary;
-
-        span {
-          color: $text-muted;
-          font-weight: 500;
-        }
-        i {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
+        .item {
           width: 16px;
-          height: 16px;
-          border-radius: 50%;
-          cursor: pointer;
-          color: $text-muted;
-          transition: all 0.2s;
-          font-size: 10px;
-
-          &:hover {
-            background: rgba(0,0,0,0.08);
-            color: $text-primary;
-          }
-        }
-      }
-      .Filterd__clean--btn {
-        font-size: 12px;
-        color: $brand;
-        cursor: pointer;
-        padding: 6px 10px;
-        border-radius: 20px;
-        transition: all 0.2s;
-        font-weight: 500;
-
-        i { margin-right: 4px; }
-
-        &:hover {
-          background: rgba(47,58,145,0.08);
-        }
-      }
-    }
-
-    // ===== Result Count =====
-    .Total__wrap {
-      margin-bottom: 16px;
-      padding: 0 4px;
-
-      .Total__text {
-        font-size: 14px;
-        color: $text-secondary;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-
-        span {
-          color: $brand;
-          font-weight: 700;
-          font-size: 16px;
-        }
-      }
-    }
-
-    // ===== Results Area =====
-    .Result__wrap {
-      width: 100%;
-      height: auto;
-
-      // ===== Rich Card (统一适用于所有4种类型) =====
-      .RichCard {
-        display: flex;
-        gap: 14px;
-        background: #fff;
-        border-radius: 12px;
-        padding: 18px 20px;
-        margin-bottom: 12px;
-        border: 1px solid $border-soft;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        animation: cardFadeIn 0.45s ease both;
-
-        &:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(0,0,0,0.06);
-          border-color: darken($border-soft, 8%);
+          margin-right: 8px;
         }
 
-        &__index {
-          width: 30px;
-          height: 30px;
-          flex-shrink: 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 12px;
-          font-weight: 700;
-          color: #fff;
-          background: linear-gradient(135deg, $brand, #5A66B8);
-          border-radius: 8px;
-          margin-top: 2px;
+        .text {
+          color: #1f2937;
+          font-size: 14px;
         }
 
-        &__inner {
-          flex: 1;
-          display: flex;
-          gap: 18px;
-          min-width: 0;
-        }
-
-        &__pic {
-          width: 180px;
-          height: 120px;
-          flex-shrink: 0;
-          border-radius: 8px;
-          overflow: hidden;
-          background: $bg-soft;
-          position: relative;
-
-          img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-            transition: transform 0.4s;
-          }
-
-          &::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.10));
-            pointer-events: none;
-          }
-        }
-
-        &:hover &__pic img {
-          transform: scale(1.06);
-        }
-
-        &__body {
-          flex: 1;
-          min-width: 0;
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        &__title {
-          font-size: 16px;
-          font-weight: 700;
-          color: $text-primary;
-          margin: 0;
-          line-height: 1.5;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-          transition: color 0.2s;
-
-          &:hover {
-            color: $brand;
-          }
-        }
-
-        &__desc {
+        .num {
+          margin-left: 12px;
+          color: $text-mute;
           font-size: 13px;
-          color: $text-secondary;
-          line-height: 1.6;
-          margin: 0;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
         }
+      }
 
-        &__meta {
-          display: flex;
-          flex-wrap: wrap;
-          align-items: center;
-          gap: 8px 14px;
-          margin-top: auto;
-          padding-top: 8px;
-        }
+      .base-checkbox__inner {
+        border: 1px solid #cfd9e8;
+        border-radius: 6px;
+        background: #fff;
+      }
 
-        &__tag {
-          display: inline-block;
-          padding: 3px 10px;
-          border-radius: 20px;
-          font-size: 11px;
-          font-weight: 600;
-          letter-spacing: 0.2px;
-
-          &--type    { background: #eef2ff; color: $brand; }
-          &--status  { background: #e4f7e9; color: #0c833e; }
-          &--license { background: #fff3e0; color: #b85c00; }
-          &--journal { background: #f3e8fd; color: #7c3aed; }
-        }
-
-        &__meta-item {
-          font-size: 12px;
-          color: $text-muted;
-          white-space: nowrap;
-          display: flex;
-          align-items: center;
-          gap: 3px;
-
-          &--year {
-            margin-left: auto;
-            font-weight: 500;
-            color: darken($text-muted, 10%);
-          }
-        }
-
-        &__extra {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 14px;
-          margin-top: 2px;
-
-          &-item {
-            font-size: 11px;
-            color: darken($text-muted, 5%);
-            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-          }
-        }
-
-        // ===== Article / Sciencedata (no-image variants) =====
-        &--article,
-        &--sciencedata {
-          .RichCard__inner {
-            padding-left: 4px;
-          }
-          .RichCard__body {
-            gap: 6px;
-          }
-        }
+      .base-checkbox__input.is-checked .base-checkbox__inner {
+        border-color: $accent;
+        background: $accent;
       }
     }
 
-    // ===== Pagination =====
-    ::v-deep .base-pagination {
-      margin: 24px auto 40px;
-      display: flex;
-      justify-content: center;
+    .readmore {
+      color: $text-mute;
 
-      button, .el-pager li {
-        border-radius: 8px !important;
-        border: 1px solid $border-soft !important;
-        background: #fff !important;
-        font-size: 13px !important;
-        min-width: 36px;
-        height: 36px;
-        margin: 0 3px;
-        transition: all 0.2s;
-
-        &:hover {
-          border-color: $brand !important;
-          color: $brand !important;
-        }
-
-        &.active {
-          background: $brand !important;
-          border-color: $brand !important;
-          color: #fff !important;
-        }
+      &:hover {
+        color: $accent;
       }
     }
   }
 }
 
-@keyframes cardFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
+// ===== 右侧主区 =====
+.ContentLayout__mainColumn {
+  flex: 1;
+  min-width: 0;
+  max-height: 100%;
+  overflow-y: auto;
+  padding-right: 4px;
+  box-sizing: border-box;
+}
+
+// ===== 资源类型 Tab =====
+.AppSearchTabsShell {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  margin-bottom: 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.68);
+  backdrop-filter: blur(16px);
+  overflow: hidden;
+}
+
+.AppSearchTabs {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+}
+
+.AppSearchTab {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  min-width: 92px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  color: #52647a;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+  &:hover {
+    border-color: rgba(29, 78, 216, 0.2);
+    background: rgba(255, 255, 255, 0.88);
+    color: $accent;
+  }
+
+  &.is-active {
+    border-color: rgba(29, 78, 216, 0.22);
+    background: linear-gradient(135deg, $accent 0%, $accent-2 100%);
+    color: #fff;
+    box-shadow: 0 14px 28px rgba(29, 78, 216, 0.22);
+  }
+}
+
+// ===== 筛选栏 =====
+.AppSearchFilters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border-radius: 20px;
+  background: $card-bg;
+  backdrop-filter: blur(14px);
+}
+
+.AppFilterMeta {
+  color: $text-sub;
+  font-size: 14px;
+
+  span,
+  b {
+    color: $text-main;
+    font-weight: 700;
+  }
+}
+
+.MetaCounting {
+  display: flex;
+  align-items: center;
+  padding: 0 16px 0 4px;
+}
+
+.AppSearchFilterItems {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  margin-left: auto;
+}
+
+.AppFilterInput {
+  width: 260px;
+
+  ::v-deep .base-input {
+    width: 100%;
+    border-radius: 10px;
+
+    &.is-focused {
+      border-radius: 10px;
+    }
+  }
+
+  ::v-deep .base-input__icon {
+    cursor: pointer;
+
+    &.is-disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.AppSearchSubmit {
+  height: 32px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, $accent 0%, $accent-2 100%);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 8px 18px rgba(29, 78, 216, 0.2);
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 22px rgba(29, 78, 216, 0.26);
+  }
+}
+
+// ===== 已选条件 =====
+.AppSearchRefineItems {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 16px 16px 3px;
+  margin-bottom: 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.AppSearchRefineLabel {
+  margin-right: 16px;
+  margin-bottom: 13px;
+  color: #475569;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.AppSearchRefineItem {
+  display: flex;
+  align-items: center;
+  margin-right: 13px;
+  margin-bottom: 13px;
+  padding: 5px 10px 5px 12px;
+  border: 1px solid #dbeafe;
+  border-radius: 999px;
+  background: #f8fbff;
+
+  .base-icon-close {
+    margin-left: 8px;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: color 0.2s;
+
+    &:hover {
+      color: $accent;
+    }
+  }
+}
+
+.AppSearchRefineItemText {
+  max-width: 260px;
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: #1f2937;
+  font-size: 13px;
+}
+
+.AppSearchRefineAction {
+  margin-bottom: 13px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  color: $accent;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  i {
+    margin-right: 5px;
+  }
+
+  &:hover {
+    background: #eef4ff;
+  }
+}
+
+// ===== 结果列表 =====
+.List__item {
+  position: relative;
+  display: flex;
+  padding: 16px;
+  margin-bottom: 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.94);
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.1);
+  }
+}
+
+.List__itemIndex {
+  flex: 0 0 40px;
+  width: 40px;
+  padding-top: 2px;
+  color: $text-mute;
+  font-size: 15px;
+}
+
+.List__itemBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.List__itemInner {
+  display: flex;
+  gap: 18px;
+}
+
+.List__itemMain {
+  flex: 1;
+  min-width: 0;
+}
+
+.List__itemTitle {
+  margin: 0 0 8px;
+  color: $text-main;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 0.2s;
+
+  &:hover {
+    color: $accent;
+  }
+}
+
+.List__itemDesc {
+  margin: 0 0 10px;
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.7;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.List__itemMeta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.List__itemTag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: $accent;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.List__itemMetaItem {
+  color: $text-mute;
+  font-size: 13px;
+  white-space: nowrap;
+
+  &--year {
+    color: #7b8aa3;
+    font-weight: 600;
+  }
+}
+
+.List__itemExtra {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 8px;
+  color: $text-mute;
+  font-size: 12px;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+.List__itemCover {
+  flex: 0 0 132px;
+  width: 132px;
+  height: 92px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f6faff;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+}
+
+.List__item:hover .List__itemCover img {
+  transform: scale(1.05);
+}
+
+// ===== 分页 =====
+.AppSearchPagination {
+  padding: 20px 0 8px;
+  display: flex;
+  justify-content: center;
+
+  ::v-deep .base-pagination {
+    display: flex;
+    justify-content: center;
+  }
+
+  ::v-deep .base-pagination button,
+  ::v-deep .base-pagination .base-pager li {
+    border-radius: 10px;
+    border: 1px solid #e2e8f2;
+    background: #fff;
+    transition: all 0.2s;
+
+    &:hover {
+      color: $accent;
+      border-color: rgba(29, 78, 216, 0.3);
+    }
+
+    &.active {
+      color: #fff;
+      border-color: $accent;
+      background: linear-gradient(135deg, $accent 0%, $accent-2 100%);
+    }
+  }
+}
+
+// ===== 自适应 =====
+@media (max-width: 1180px) {
+  .ContentLayout {
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .ContentLayout__sideColumn {
+    flex: 0 0 240px;
+    width: 240px;
+  }
+
+  .AppFilterInput {
+    width: 200px;
+  }
+}
+
+@media (max-width: 900px) {
+  .Explore__page {
+    overflow-y: auto;
+  }
+
+  .ContentLayout {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ContentLayout__sideColumn {
+    flex: none;
+    width: 100%;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .ContentLayout__mainColumn {
+    max-height: none;
+    overflow: visible;
   }
 }
 </style>

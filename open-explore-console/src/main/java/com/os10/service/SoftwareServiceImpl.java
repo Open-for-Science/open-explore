@@ -82,41 +82,67 @@ public class SoftwareServiceImpl {
             searchSourceBuilder.query(boolQueryBuilder);
         });
 
-        List<JSONObject> jsonList = esSoftwareService.getJsonList(query.getHits());
-        // 字段映射：将 ES 原始软件字段转换为前端可读字段
         List<JSONObject> mappedList = new ArrayList<>();
-        for (JSONObject item : jsonList) {
-            JSONObject mapped = new JSONObject();
-            mapped.put("uuid", item.getString("uuid"));
-            mapped.put("title", item.getString("name") != null ? item.getString("name") : "");
-            mapped.put("abstracts", item.getString("detail_json") != null ? item.getString("detail_json") : "");
-            // tag -> keyword
-            JSONArray tags = item.getJSONArray("tag");
-            mapped.put("keyword", tags != null ? tags : new JSONArray());
-            // 作者（软件可能没有，保持空）
-            mapped.put("author", new JSONArray());
-            // 其他字段
-            mapped.put("pub-date", item.getString("publish_time") != null ? item.getString("publish_time") : "");
-            mapped.put("pub-year", item.getString("pub_year") != null ? item.getString("pub_year") : "");
-            mapped.put("category", item.getString("category") != null ? item.getString("category") : "");
-            mapped.put("license", item.getString("license") != null ? item.getString("license") : "");
-            mapped.put("status", item.getString("status") != null ? item.getString("status") : "");
-            mapped.put("organization", item.getString("aggregated_source") != null ? item.getString("aggregated_source") : "");
-            mapped.put("source-url", item.getString("homepage") != null ? item.getString("homepage") : "");
-            mapped.put("detail_url", item.getString("detail_url") != null ? item.getString("detail_url") : "");
-            mapped.put("image-url", "");
-            // 补充前端 ReadableItem 需要的字段
-            mapped.put("date", mapped.getString("pub-date"));
-            mapped.put("year", mapped.getString("pub-year"));
-            mapped.put("doi", "");
-            mapped.put("journal", "");
-            mapped.put("link", "");
-            mappedList.add(mapped);
+        for (JSONObject item : esSoftwareService.getJsonList(query.getHits())) {
+            mappedList.add(mapSoftwareFields(item));
         }
         JSONObject result = new JSONObject();
         result.put("content", mappedList);
         result.put("total", query.getTotal());
         return BaseMessage.success(result);
+    }
+
+    /**
+     * 将索引文档转换为前端可读字段（列表/详情/首页复用）
+     * 索引字段：name / description / tag / publish_time / pub_year / category / resource_type / language_main ...
+     */
+    private JSONObject mapSoftwareFields(JSONObject item) {
+        JSONObject mapped = new JSONObject();
+        String name = item.getString("name");
+        if (StrUtil.isEmpty(name)) {
+            name = item.getString("title");
+        }
+        mapped.put("uuid", item.getString("uuid"));
+        mapped.put("title", StrUtil.isEmpty(name) ? "" : name);
+
+        String description = item.getString("description");
+        mapped.put("abstracts", StrUtil.isEmpty(description) ? "" : description);
+        mapped.put("description", StrUtil.isEmpty(description) ? "" : description);
+
+        JSONArray tags = item.getJSONArray("tag");
+        mapped.put("keyword", tags != null ? tags : new JSONArray());
+        JSONArray authors = item.getJSONArray("author_name");
+        mapped.put("author", authors != null ? authors : new JSONArray());
+
+        String pubDate = item.getString("publish_time");
+        String pubYear = item.getString("pub_year");
+        mapped.put("pub-date", pubDate != null ? pubDate : "");
+        mapped.put("pub-year", pubYear != null ? pubYear : "");
+        mapped.put("date", pubDate != null ? pubDate : "");
+        mapped.put("year", pubYear != null ? pubYear : "");
+
+        mapped.put("category", nvl(item.getString("category")));
+        mapped.put("resource-type", nvl(item.getString("resource_type")));
+        mapped.put("programming-language", nvl(item.getString("language_main")));
+        mapped.put("license", nvl(item.getString("license")));
+        mapped.put("status", nvl(item.getString("status")));
+        String org = item.getString("organization");
+        if (StrUtil.isEmpty(org)) {
+            org = item.getString("aggregated_source");
+        }
+        mapped.put("organization", nvl(org));
+        mapped.put("source-url", nvl(item.getString("homepage")));
+        mapped.put("detail_url", nvl(item.getString("detail_url")));
+        mapped.put("image-url", "");
+        mapped.put("version", nvl(item.getString("software_version")));
+        mapped.put("doi", "");
+        mapped.put("journal", "");
+        mapped.put("link", "");
+        return mapped;
+    }
+
+    private String nvl(String value) {
+        return value != null ? value : "";
     }
 
     /**
@@ -127,10 +153,11 @@ public class SoftwareServiceImpl {
             Map<String, String> aggregations = softwareQuery.getAggregations();
             if (CollectionUtil.isEmpty(aggregations)) {
                 aggregations = new HashMap<>();
-                aggregations.put("programming-language", "");
-                aggregations.put("platform", "");
+                aggregations.put("resource_type", "");
+                aggregations.put("category", "");
+                aggregations.put("language_main", "");
                 aggregations.put("license", "");
-                aggregations.put("pub-year", "");
+                aggregations.put("pub_year", "");
             }
             searchSourceBuilder.size(0);
             BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -156,28 +183,7 @@ public class SoftwareServiceImpl {
     public BaseMessage getSoftware(String id) {
         JSONObject data = esSoftwareService.queryById(id);
         if (data != null && !data.isEmpty()) {
-            JSONObject mapped = new JSONObject();
-            mapped.put("uuid", data.getString("uuid"));
-            mapped.put("title", data.getString("name") != null ? data.getString("name") : "");
-            mapped.put("abstracts", data.getString("detail_json") != null ? data.getString("detail_json") : "");
-            JSONArray tags = data.getJSONArray("tag");
-            mapped.put("keyword", tags != null ? tags : new JSONArray());
-            mapped.put("author", new JSONArray());
-            mapped.put("pub-date", data.getString("publish_time") != null ? data.getString("publish_time") : "");
-            mapped.put("pub-year", data.getString("pub_year") != null ? data.getString("pub_year") : "");
-            mapped.put("category", data.getString("category") != null ? data.getString("category") : "");
-            mapped.put("license", data.getString("license") != null ? data.getString("license") : "");
-            mapped.put("status", data.getString("status") != null ? data.getString("status") : "");
-            mapped.put("organization", data.getString("aggregated_source") != null ? data.getString("aggregated_source") : "");
-            mapped.put("source-url", data.getString("homepage") != null ? data.getString("homepage") : "");
-            mapped.put("detail_url", data.getString("detail_url") != null ? data.getString("detail_url") : "");
-            mapped.put("image-url", "");
-            mapped.put("date", mapped.getString("pub-date"));
-            mapped.put("year", mapped.getString("pub-year"));
-            mapped.put("doi", "");
-            mapped.put("journal", "");
-            mapped.put("link", "");
-            return BaseMessage.success(mapped);
+            return BaseMessage.success(mapSoftwareFields(data));
         }
         return BaseMessage.success(data);
     }
@@ -188,27 +194,12 @@ public class SoftwareServiceImpl {
     public BaseMessage listLatestSoftware(int size) {
         ESResult query = esSoftwareService.query(searchSourceBuilder -> {
             searchSourceBuilder.query(QueryBuilders.matchAllQuery());
-            searchSourceBuilder.sort("pub-date", SortOrder.DESC);
+            searchSourceBuilder.sort("publish_time", SortOrder.DESC);
             searchSourceBuilder.from(0).size(size);
         });
-        List<JSONObject> jsonList = esSoftwareService.getJsonList(query.getHits());
         List<JSONObject> mappedList = new ArrayList<>();
-        for (JSONObject item : jsonList) {
-            JSONObject mapped = new JSONObject();
-            mapped.put("uuid", item.getString("uuid"));
-            mapped.put("title", item.getString("name") != null ? item.getString("name") : "");
-            mapped.put("abstracts", item.getString("detail_json") != null ? item.getString("detail_json") : "");
-            JSONArray tags = item.getJSONArray("tag");
-            mapped.put("keyword", tags != null ? tags : new JSONArray());
-            mapped.put("author", new JSONArray());
-            mapped.put("pub-date", item.getString("publish_time") != null ? item.getString("publish_time") : "");
-            mapped.put("pub-year", item.getString("pub_year") != null ? item.getString("pub_year") : "");
-            mapped.put("date", mapped.getString("pub-date"));
-            mapped.put("year", mapped.getString("pub-year"));
-            mapped.put("image-url", "");
-            mapped.put("doi", "");
-            mapped.put("link", "");
-            mappedList.add(mapped);
+        for (JSONObject item : esSoftwareService.getJsonList(query.getHits())) {
+            mappedList.add(mapSoftwareFields(item));
         }
         JSONObject result = new JSONObject();
         result.put("content", mappedList);

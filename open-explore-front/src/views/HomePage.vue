@@ -6,91 +6,95 @@
   <div class="HomePage">
 
     <!-- ============================================================ -->
-    <!-- 1. Hero 横幅区（左侧：标题 + 搜索框 | 右侧：轮播图）                -->
+    <!-- 1. Hero 横幅区（背景：蓝白科技原子图；左侧：标题 + 搜索框 + 统计）   -->
     <!-- ============================================================ -->
-    <section class="Hero__section">
-      <!-- 背景装饰遮罩 -->
-      <div class="Hero__overlay"></div>
+    <section class="Hero">
       <div class="Hero__inner">
-
-        <!-- ----- 左侧：文字内容 + 搜索框 ----- -->
         <div class="Hero__content">
           <h1 class="Hero__title">{{ $t('hero.title') }}</h1>
-          <p class="Hero__subtitle">{{$t('hero.subtitle')}}</p>
-          <p class="Hero__tagline">{{ $t('hero.tagline') }}</p>
-          <div class="Hero__search">
+          <p class="Hero__subtitle">{{ $t('hero.subtitle') }}</p>
+
+          <!-- ----- 胶囊搜索框（回车或点击按钮跳转搜索页） ----- -->
+          <form class="Hero__search" @submit.prevent="goSearch">
+            <svg class="Hero__searchIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="11" cy="11" r="7"></circle>
+              <path d="M20.5 20.5L16 16"></path>
+            </svg>
             <input
               v-model="searchKeyword"
               type="text"
               :placeholder="$t('hero.searchPlaceholder')"
-              @keyup.enter="goSearch"
             />
-            <button class="Hero__searchBtn" @click="goSearch">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+            <button class="Hero__searchBtn" type="submit" aria-label="search">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 10h13M11 5l5 5-5 5"></path>
               </svg>
-              <span>Search</span>
             </button>
-          </div>
-        </div>
+          </form>
 
-        <!-- ----- 右侧：横幅轮播图 ----- -->
-        <div class="Hero__carousel">
-          <div
-            class="Hero__carouselSlide"
-            v-for="(slide, idx) in $t('homepage.bannerSlides')"
-            :key="slide.id || idx"
-            :class="{ 'Hero__carouselSlide--active': idx === carouselIdx }"
-          >
-            <img :src="slide.image" :alt="slide.title" />
-            <div class="Hero__carouselOverlay">
-              <h3 class="Hero__carouselTitle">{{ slide.title }}</h3>
-              <p class="Hero__carouselDesc">{{ slide.description }}</p>
+          <!-- ----- 统计数字（均由后端动态查询） ----- -->
+          <div class="Hero__stats">
+            <!-- 统计项 1：文章总量 -->
+            <div class="Hero__stat">
+              <svg class="Hero__statIcon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 3h8l4 4v14H6z"></path>
+                <path d="M14 3v4h4"></path>
+                <path d="M9 12h6M9 16h6"></path>
+              </svg>
+              <div class="Hero__statText">
+                <span class="Hero__statNum">{{ formatNumber(statsData.articleTotal) }}</span>
+                <span class="Hero__statLabel">{{ $t('stats.articleTotal') }}</span>
+              </div>
+            </div>
+            <span class="Hero__statDivider"></span>
+
+            <!-- 统计项 2：科学数据总量 -->
+            <div class="Hero__stat">
+              <svg class="Hero__statIcon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <ellipse cx="12" cy="5" rx="7.5" ry="2.8"></ellipse>
+                <path d="M4.5 5v14c0 1.6 3.4 2.8 7.5 2.8s7.5-1.2 7.5-2.8V5"></path>
+                <path d="M4.5 12c0 1.6 3.4 2.8 7.5 2.8s7.5-1.2 7.5-2.8"></path>
+              </svg>
+              <div class="Hero__statText">
+                <span class="Hero__statNum">{{ formatNumber(statsData.scienceDataTotal) }}</span>
+                <span class="Hero__statLabel">{{ $t('stats.scienceDataTotal') }}</span>
+              </div>
+            </div>
+            <span class="Hero__statDivider"></span>
+
+            <!-- 统计项 3：科学软件总量 -->
+            <div class="Hero__stat">
+              <svg class="Hero__statIcon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8.5 7L3.5 12l5 5"></path>
+                <path d="M15.5 7l5 5-5 5"></path>
+              </svg>
+              <div class="Hero__statText">
+                <span class="Hero__statNum">{{ formatNumber(statsData.softwareTotal) }}</span>
+                <span class="Hero__statLabel">{{ $t('stats.softwareTotal') }}</span>
+              </div>
+            </div>
+            <span class="Hero__statDivider"></span>
+
+            <!-- 统计项 4：科学装置总量 -->
+            <div class="Hero__stat">
+              <svg class="Hero__statIcon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="2.2"></circle>
+                <ellipse cx="12" cy="12" rx="9.2" ry="4"></ellipse>
+                <ellipse cx="12" cy="12" rx="9.2" ry="4" transform="rotate(60 12 12)"></ellipse>
+                <ellipse cx="12" cy="12" rx="9.2" ry="4" transform="rotate(120 12 12)"></ellipse>
+              </svg>
+              <div class="Hero__statText">
+                <span class="Hero__statNum">{{ formatNumber(statsData.facilityTotal) }}</span>
+                <span class="Hero__statLabel">{{ $t('stats.facilityTotal') }}</span>
+              </div>
             </div>
           </div>
-          <!-- 轮播图指示点 -->
-          <div class="Hero__carouselDots">
-            <span
-              v-for="(slide, idx) in $t('homepage.bannerSlides')"
-              :key="'dot-' + idx"
-              class="Hero__carouselDot"
-              :class="{ 'Hero__carouselDot--active': idx === carouselIdx }"
-              @click="carouselIdx = idx"
-            ></span>
-          </div>
         </div>
-      </div>
-    </section>
 
-    <!-- ============================================================ -->
-    <!-- 2. 统计栏（四个统计数字，均由后端动态查询）                         -->
-    <!-- ============================================================ -->
-    <section class="Stats__section">
-      <div class="Stats__inner">
-        <!-- 统计项 1：文章总量（动态） -->
-        <div class="Stats__item">
-          <span class="Stats__num">{{ formatNumber(statsData.articleTotal) }}</span>
-          <span class="Stats__label">{{ $t('stats.articleTotal') }}</span>
+        <!-- ----- 首屏右侧装饰图（原子轨道） ----- -->
+        <div class="Hero__art" aria-hidden="true">
+          <img src="@/assets/hero-atom.png" alt="" />
         </div>
-        <div class="Stats__divider"></div>
-        <!-- 统计项 2：科学数据总量（动态） -->
-        <div class="Stats__item">
-          <span class="Stats__num">{{ formatNumber(statsData.scienceDataTotal) }}</span>
-          <span class="Stats__label">{{ $t('stats.scienceDataTotal') }}</span>
-        </div>
-        <div class="Stats__divider"></div>
-        <!-- 统计项 3：科学软件总量 -->
-        <div class="Stats__item">
-          <span class="Stats__num">{{ statsData.softwareTotal }}</span>
-          <span class="Stats__label">{{ $t('stats.softwareTotal') }}</span>
-        </div>
-        <div class="Stats__divider"></div>
-        <!-- 统计项 4：科学装置总量 -->
-        <div class="Stats__item">
-          <span class="Stats__num">{{ statsData.facilityTotal }}</span>
-          <span class="Stats__label">{{ $t('stats.facilityTotal') }}</span>
-        </div>
-        <div class="Stats__divider"></div>
       </div>
     </section>
 
@@ -377,10 +381,6 @@ export default {
   // ========================================================== //
   data() {
     return {
-      homepage: {
-        bannerSlides: [],
-        resourceTypes: []
-      },
       searchKeyword: '',         // 搜索框输入的关键词
       // ----- 统计栏数据（来自后端 /stats/v1/totals）----- //
       statsData: { articleTotal: 0, scienceDataTotal: 0 },
@@ -388,8 +388,6 @@ export default {
       latestScienceData: [],     // 最新科学数据列表（来自 /sciencedata/v1/latest）
       latestSoftware: [],        // 最新科学软件列表（来自 /software/v1/latest）
       latestFacility: [],        // 最新科学装置列表（来自 /facility/v1/latest）
-      carouselIdx: 0,            // 轮播图当前索引
-      carouselTimer: null,       // 轮播定时器句柄
       currentDate: ''            // 格式化后的当前日期
     }
   },
@@ -399,10 +397,6 @@ export default {
   // 组件创建时加载首页数据
   created() {
     this.loadHomepage()
-  },
-  // 组件销毁前停止轮播定时器，防止内存泄漏
-  beforeDestroy() {
-    this.stopCarousel()
   },
 
   // ========================================================== //
@@ -459,7 +453,6 @@ export default {
           }
         }
         this.currentDate = this.getFormattedDate()
-        this.$nextTick(this.startCarousel)
       } catch (e) {
         console.error('Failed to load homepage data:', e)
       }
@@ -499,27 +492,6 @@ export default {
       if (kw) {
         this.$router.push({ path: '/search', query: { query: kw } })
       }
-    },
-    /**
-     * 启动 Hero 轮播图自动播放（每 4.5 秒切换一帧）
-     */
-    startCarousel() {
-      const slides = this.$t('homepage.bannerSlides')
-      this.stopCarousel()
-      if (slides && slides.length > 1) {
-        this.carouselTimer = setInterval(() => {
-          this.carouselIdx = (this.carouselIdx + 1) % slides.length
-        }, 4500)
-      }
-    },
-    /**
-     * 停止轮播自动播放
-     */
-    stopCarousel() {
-      if (this.carouselTimer) {
-        clearInterval(this.carouselTimer)
-        this.carouselTimer = null
-      }
     }
   }
 }
@@ -558,195 +530,170 @@ $textGray: #6c757d;
   }
 }
 
-/* ===================== Hero 横幅区（左侧内容 + 右侧轮播） ===================== */
-.Hero__section {
+/* ===================== Hero 横幅区（背景图 + 左侧内容 + 统计） ===================== */
+.Hero {
   position: relative;
   width: 100%;
-  min-height: 460px;
-  background: linear-gradient(135deg, $primary 0%, $primaryDark 50%, #1b2a4a 100%);
-  display: flex;
-  align-items: center;
   overflow: hidden;
-}
-.Hero__overlay {
-  position: absolute;
-  inset: 0;
-  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='30'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  pointer-events: none;
+  background: #eaf0fb url("~@/assets/hero-bg.jpg") center / cover no-repeat;
+  padding: 76px 0 64px;
+
+  /* 左侧白色渐隐，保证文字可读 */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.92) 0%,
+      rgba(255, 255, 255, 0.72) 38%,
+      rgba(255, 255, 255, 0.18) 60%,
+      rgba(255, 255, 255, 0) 72%
+    );
+    pointer-events: none;
+  }
 }
 .Hero__inner {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 1300px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 50px 40px;
-  display: flex;
-  align-items: center;
-  gap: 48px;
+  padding: 0 40px;
+  box-sizing: border-box;
 }
 .Hero__content {
-  flex: 1;
-  min-width: 0;
+  max-width: 680px;
+}
+
+/* ----- 首屏右侧装饰图：原子轨道 ----- */
+.Hero__art {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: min(40%, 460px);
+  transform: translateY(-50%);
+  pointer-events: none;
+  mix-blend-mode: multiply;
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+    animation: heroFloat 7s ease-in-out infinite;
+  }
+}
+@keyframes heroFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
 }
 .Hero__title {
-  font-size: 44px;
+  font-size: clamp(34px, 4vw, 58px);
   font-weight: 800;
-  color: #fff;
-  letter-spacing: 2px;
-  margin: 0 0 12px;
+  line-height: 1.14;
+  letter-spacing: -1px;
+  color: #1b2559;
+  margin: 0 0 18px;
+  animation: fadeInUp 0.6s ease both;
 }
 .Hero__subtitle {
   font-size: 18px;
-  color: rgba(255,255,255,0.78);
-  line-height: 1.7;
-  margin: 0 0 6px;
+  line-height: 1.75;
+  color: #5b6591;
+  max-width: 470px;
+  margin: 0 0 34px;
+  animation: fadeInUp 0.6s ease 0.08s both;
 }
-.Hero__tagline {
-  font-size: 14px;
-  color: rgba(255,255,255,0.55);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin: 0 0 32px;
-}
+
+/* ----- 胶囊搜索框 ----- */
 .Hero__search {
   display: flex;
-  max-width: 520px;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 540px;
+  height: 56px;
+  padding: 0 8px 0 20px;
   background: #fff;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  border: 1px solid rgba(96, 120, 220, 0.16);
+  border-radius: 999px;
+  box-shadow: 0 10px 28px rgba(38, 58, 160, 0.1);
+  animation: fadeInUp 0.6s ease 0.16s both;
+
   input {
     flex: 1;
+    min-width: 0;
+    height: 100%;
     border: none;
     outline: none;
-    padding: 16px 20px;
-    font-size: 16px;
-    color: #333;
+    background: transparent;
+    font-size: 15px;
+    color: #1b2559;
     &::placeholder {
-      color: #aaa;
+      color: #98a1bd;
     }
   }
+}
+.Hero__searchIcon {
+  flex-shrink: 0;
+  color: #8b95b8;
 }
 .Hero__searchBtn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 28px;
-  background: $primary;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: background 0.2s;
-  &:hover {
-    background: darken($primary, 8%);
-  }
-}
-
-/* ===================== Hero 右侧轮播图 ===================== */
-.Hero__carousel {
-  width: 420px;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
-  position: relative;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
-  aspect-ratio: 16 / 10;
-}
-.Hero__carouselSlide {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 0.6s ease;
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-  &--active {
-    opacity: 1;
-  }
-}
-.Hero__carouselOverlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 24px 20px 36px;
-  background: linear-gradient(transparent, rgba(0,0,0,0.7));
-  color: #fff;
-}
-.Hero__carouselTitle {
-  font-size: 16px;
-  font-weight: 700;
-  margin: 0 0 4px;
-}
-.Hero__carouselDesc {
-  font-size: 13px;
-  color: rgba(255,255,255,0.8);
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.Hero__carouselDots {
-  position: absolute;
-  bottom: 12px;
-  right: 16px;
-  display: flex;
-  gap: 6px;
-}
-.Hero__carouselDot {
-  width: 8px;
-  height: 8px;
+  border: none;
   border-radius: 50%;
-  background: rgba(255,255,255,0.4);
+  background: linear-gradient(135deg, #4a6cf7 0%, #2f47c8 100%);
+  color: #fff;
   cursor: pointer;
-  transition: background 0.2s;
-  &--active {
-    background: #fff;
-    transform: scale(1.2);
+  transition: transform 0.2s, box-shadow 0.2s;
+  &:hover {
+    transform: translateX(2px);
+    box-shadow: 0 6px 16px rgba(47, 71, 200, 0.45);
   }
 }
 
-/* ===================== 统计栏 ===================== */
-.Stats__section {
-  background: #fff;
-  border-bottom: 1px solid #eee;
-}
-.Stats__inner {
+/* ----- Hero 底部统计行 ----- */
+.Hero__stats {
   display: flex;
   align-items: center;
-  justify-content: center;
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 32px 24px;
+  gap: 28px;
+  margin-top: 48px;
+  animation: fadeInUp 0.6s ease 0.24s both;
+}
+.Hero__stat {
+  display: flex;
+  align-items: center;
   gap: 12px;
 }
-.Stats__item {
+.Hero__statIcon {
+  flex-shrink: 0;
+  color: #5b6bc0;
+}
+.Hero__statText {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  min-width: 120px;
 }
-.Stats__num {
-  font-size: 28px;
+.Hero__statNum {
+  font-size: 19px;
   font-weight: 800;
-  color: $primary;
+  line-height: 1.2;
+  color: #1b2559;
 }
-.Stats__label {
-  font-size: 13px;
-  color: $textGray;
-  margin-top: 4px;
+.Hero__statLabel {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #6b7595;
+  white-space: nowrap;
 }
-.Stats__divider {
+.Hero__statDivider {
   width: 1px;
-  height: 48px;
-  background: #e0e0e0;
+  height: 34px;
+  background: rgba(27, 37, 89, 0.12);
 }
 
 /* ===================== 开放科学能力框架（居中对齐 3x2 网格） ===================== */
@@ -1191,19 +1138,17 @@ $textGray: #6c757d;
 
 /* ===================== 响应式适配 ===================== */
 @media (max-width: 1024px) {
-  .Hero__inner {
-    flex-direction: column;
-    text-align: center;
+  .Hero {
+    padding: 60px 0 52px;
   }
-  .Hero__content {
-    max-width: 100%;
+  .Hero__art {
+    display: none;
   }
-  .Hero__search {
-    margin: 0 auto;
+  .Hero__title {
+    font-size: 48px;
   }
-  .Hero__carousel {
-    width: 100%;
-    max-width: 480px;
+  .Hero__stats {
+    gap: 20px;
   }
   .Resources__grid {
     grid-template-columns: repeat(2, 1fr);
@@ -1217,12 +1162,28 @@ $textGray: #6c757d;
   }
 }
 @media (max-width: 768px) {
-  .Hero__inner {
-    padding: 40px 24px;
+  .Hero {
+    padding: 44px 0 40px;
+    background-position: 70% center;
   }
-  .Hero__title { font-size: 28px; }
-  .Stats__inner { flex-wrap: wrap; }
-  .Stats__divider { display: none; }
+  .Hero__inner {
+    padding: 0 24px;
+  }
+  .Hero__content {
+    max-width: 100%;
+  }
+  .Hero__title { font-size: 34px; }
+  .Hero__subtitle { font-size: 16px; margin-bottom: 26px; }
+  .Hero__search {
+    height: 50px;
+    padding-left: 16px;
+  }
+  .Hero__stats {
+    flex-wrap: wrap;
+    gap: 16px 20px;
+    margin-top: 32px;
+  }
+  .Hero__statDivider { display: none; }
   .Resources__grid { grid-template-columns: 1fr; }
   .Section__header h2 { font-size: 22px; }
 }

@@ -74,8 +74,16 @@ export default {
       classificationFirst: 'Category L1',
       classificationSecond: 'Category L2',
       year: 'Year',
+      subject: 'Research Area',
+      journal: 'Journal',
       datasetType: 'Dataset Type',
-      type: 'Type'
+      type: 'Type',
+      resourceType: 'Resource Type',
+      category: 'Category',
+      language: 'Language',
+      license: 'License',
+      country: 'Country',
+      institution: 'Hosting Institution'
     }
   },
   contactEmail: 'contact@open-explore.org',
@@ -122,22 +130,64 @@ export default {
     copyright: '© 2026 OpenScience¹⁰. All rights reserved.'
   },
   about: {
+    eyebrow: 'OPEN SCIENCE · RESOURCE DISCOVERY',
     title: 'About Open Explore',
-    subtitle: 'An open-source open science resource aggregation and discovery platform.',
+    subtitle: 'A resource discovery platform for the open science ecosystem, bringing literature, scientific data, software and large research facilities into one search.',
+    ctaSearch: 'Start searching',
+    ctaContact: 'Contact us',
+    introEyebrow: 'ABOUT THE PLATFORM',
+    overview: {
+      title: 'At a glance',
+      items: [
+        { label: 'Resource types', value: '4 categories' },
+        { label: 'Interface languages', value: '5 languages' },
+        { label: 'Search engine', value: 'Elasticsearch' },
+        { label: 'Service API', value: 'RESTful API' }
+      ]
+    },
     introduction: [
-      'Open Explore is a full-stack resource discovery platform for the open science ecosystem. It aggregates four core resource types: academic literature, scientific data, scientific software, and large research facilities, providing a unified search and discovery experience through a powerful full-text search engine.',
-      'The project is built on Elasticsearch, with a Vue.js frontend and Spring Boot backend. It supports a multilingual interface (Chinese, English, Spanish, French, Russian) with faceted search, aggregate statistics, and detail browsing.',
-      'Our goal is to lower the barrier to accessing research resources and facilitate the global progress of open science.'
+      'Open Explore is a resource discovery platform for the open science ecosystem. It aggregates four core resource types — academic literature, scientific data, scientific software and large research facilities — and provides a unified search experience on top of a full-text search engine.',
+      'The platform is built on Elasticsearch, with a Vue.js frontend and a Spring Boot backend. The interface is available in Chinese, English, Spanish, French and Russian, and supports faceted filtering, aggregation statistics and record-level detail browsing.',
+      'Our goal is to lower the barrier to research resources and to speed up the global adoption of open science. Researchers, data stewards and anyone curious about open science can use Open Explore to find and access the resources they need.'
     ],
-    contributorsTitle: 'Contributors',
-    contributors: [
-      { name: 'Zhang San', avatar: 'https://img0.baidu.com/it/u=4279917707,1303528668&fm=253&app=138&f=JPEG?w=500&h=500' },
-      { name: 'Li Si', avatar: 'https://img0.baidu.com/it/u=4279917707,1303528668&fm=253&app=138&f=JPEG?w=500&h=500' },
-      { name: 'Wang Wu', avatar: 'https://img0.baidu.com/it/u=4279917707,1303528668&fm=253&app=138&f=JPEG?w=500&h=500' },
-      { name: 'Zhao Liu', avatar: 'https://img0.baidu.com/it/u=4279917707,1303528668&fm=253&app=138&f=JPEG?w=500&h=500' },
-      { name: 'Chen Qi', avatar: 'https://img0.baidu.com/it/u=4279917707,1303528668&fm=253&app=138&f=JPEG?w=500&h=500' },
-      { name: 'Liu Ba', avatar: 'https://img0.baidu.com/it/u=4279917707,1303528668&fm=253&app=138&f=JPEG?w=500&h=500' }
-    ],
+    capabilities: {
+      title: 'Four resource types, one search',
+      subtitle: 'Metadata from literature databases, data repositories, code hosting platforms and facility catalogues is normalized into a single index.',
+      countLabel: 'records',
+      items: [
+        { key: 'article', name: 'Academic literature', desc: 'Bibliographic records, abstracts and open access links for journal articles, conference papers and preprints.' },
+        { key: 'sciencedata', name: 'Scientific data', desc: 'Dataset metadata organized by discipline, including dataset type, time range, spatial coverage and licence.' },
+        { key: 'software', name: 'Scientific software', desc: 'Version, programming language, licence and repository URL for research computing, analysis and visualization tools.' },
+        { key: 'facility', name: 'Large facilities', desc: 'Hosting institutions, contact details and application guides for major research infrastructures and shared platforms.' }
+      ]
+    },
+    platform: {
+      title: 'Platform capabilities',
+      subtitle: 'From metadata ingestion to the search experience, the whole chain is built on open source components.',
+      items: [
+        { title: 'Unified search', desc: 'Multi-field full-text search on Elasticsearch, combining title, author, subject and source fields in a single query.', tags: ['Elasticsearch', 'Multi-field'] },
+        { title: 'Faceted filtering', desc: 'Aggregations by year, subject classification, dataset type, licence and country, with live counts for every option.', tags: ['Aggregations', 'Facet'] },
+        { title: 'Multilingual interface', desc: 'Chinese, English, Spanish, French and Russian interfaces driven by the same data source.', tags: ['Vue i18n', 'zh/en/es/fr/ru'] },
+        { title: 'Open API', desc: 'Search, aggregation and detail endpoints served as REST + JSON for integration and reuse.', tags: ['REST', 'JSON'] }
+      ]
+    },
+    team: {
+      title: 'Team and responsibilities',
+      subtitle: 'An interdisciplinary team covering data governance, platform engineering and product design, working module by module.',
+      items: [
+        { role: 'Platform architecture', desc: 'Technology choices, service boundaries and deployment, keeping search stable and scalable.' },
+        { role: 'Search engine', desc: 'Index design, field mapping, and query and aggregation tuning.' },
+        { role: 'Data governance', desc: 'Metadata specifications, field normalization and source quality checks.' },
+        { role: 'Front-end experience', desc: 'Interaction and visual implementation of the search page, detail pages and multilingual UI.' },
+        { role: 'Open API', desc: 'Public API design, documentation and integration support.' },
+        { role: 'Quality & operations', desc: 'Monitoring, alerting, load testing and scheduled data refresh.' }
+      ]
+    },
+    contact: {
+      title: 'Build it with us',
+      desc: 'Universities, research institutes, data repositories and open source communities are welcome to contribute metadata sources or report issues. Resource coverage and search quality keep improving with your feedback.',
+      action: 'Send an email'
+    },
     footer: '© 2026 Open Explore. Open Science, Knowledge Sharing.'
   }
 }

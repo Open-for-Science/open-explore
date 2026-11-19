@@ -1,6 +1,7 @@
 package com.os10.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -38,10 +39,12 @@ public class ArticleDO implements Serializable {
 
     private String volume;
 
+    @JsonProperty("start_page")
     @JSONField(name = "start_page")
     private String firstPage;
 
-    @JSONField(name = "last_page")
+    @JsonProperty("end_page")
+    @JSONField(name = "end_page")
     private String lastPage;
 
     private String doi;
