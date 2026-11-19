@@ -90,11 +90,11 @@
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- ----- 首屏右侧装饰图（原子轨道） ----- -->
-        <div class="Hero__art" aria-hidden="true">
-          <img src="@/assets/hero-atom.png" alt="" />
-        </div>
+      <!-- ----- 首屏右侧装饰图（原子轨道，绝对定位贴右，不占用文字空间） ----- -->
+      <div class="Hero__art" aria-hidden="true">
+        <img src="@/assets/hero-atom.png" alt="" />
       </div>
     </section>
 
@@ -534,9 +534,10 @@ $textGray: #6c757d;
 .Hero {
   position: relative;
   width: 100%;
+  /* 首屏高度固定为 banner 图高度 602px */
+  height: 602px;
   overflow: hidden;
   background: #eaf0fb url("~@/assets/hero-bg.jpg") center / cover no-repeat;
-  padding: 76px 0 64px;
 
   /* 左侧白色渐隐，保证文字可读 */
   &::before {
@@ -556,22 +557,30 @@ $textGray: #6c757d;
 .Hero__inner {
   position: relative;
   z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
   width: 100%;
   max-width: 1180px;
+  height: 100%;
   margin: 0 auto;
   padding: 0 40px;
   box-sizing: border-box;
 }
 .Hero__content {
+  flex: 1 1 auto;
+  min-width: 0;
   max-width: 680px;
 }
 
-/* ----- 首屏右侧装饰图：原子轨道 ----- */
+/* ----- 首屏右侧装饰图：原子轨道（绝对定位，贴右侧并允许轻微出血） ----- */
 .Hero__art {
   position: absolute;
   top: 50%;
-  right: 0;
-  width: min(40%, 460px);
+  right: -2%;
+  z-index: 0;
+  width: min(46vw, 720px);
   transform: translateY(-50%);
   pointer-events: none;
   mix-blend-mode: multiply;
@@ -611,7 +620,7 @@ $textGray: #6c757d;
   align-items: center;
   gap: 12px;
   width: 100%;
-  max-width: 540px;
+  max-width: 640px;
   height: 56px;
   padding: 0 8px 0 20px;
   background: #fff;
@@ -1137,9 +1146,19 @@ $textGray: #6c757d;
 }
 
 /* ===================== 响应式适配 ===================== */
+@media (max-width: 1200px) {
+  /* 中等宽度收窄搜索框，避免压到右侧装饰图 */
+  .Hero__search {
+    max-width: 560px;
+  }
+}
 @media (max-width: 1024px) {
   .Hero {
-    padding: 60px 0 52px;
+    /* 平板端保持 602px 首屏高度，内容仍垂直居中 */
+    padding: 0;
+  }
+  .Hero__content {
+    max-width: 100%;
   }
   .Hero__art {
     display: none;
@@ -1163,6 +1182,8 @@ $textGray: #6c757d;
 }
 @media (max-width: 768px) {
   .Hero {
+    height: auto;
+    min-height: 0;
     padding: 44px 0 40px;
     background-position: 70% center;
   }
