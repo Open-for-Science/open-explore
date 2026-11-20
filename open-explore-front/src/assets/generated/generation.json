@@ -1,0 +1,24 @@
+{
+  "tool": "Built-in image_gen",
+  "generatedFor": "Open Explore homepage",
+  "assets": [
+    {
+      "file": "science-atom.webp",
+      "source": "exec-c13e5479-eaa3-4273-923b-582ce9d3a89b.png",
+      "transparent": true,
+      "prompt": "Use case: stylized-concept. Asset type: production transparent PNG website hero illustration, not a webpage mockup. Create a premium polished 3D atom sculpture floating above a low circular holographic display pedestal. A large glossy cobalt blue nucleus with beautiful white studio specular highlights, 5 small blue electron spheres, three thin elegant intersecting elliptical orbital rings in cobalt blue and pearlescent glass, the whole atom slightly tilted in a dynamic elegant composition. Below it a small wide circular stepped translucent frosted-white and pale periwinkle glass podium, subtle luminous cyan rim lights and delicate contact shadow. Match a refined open-science Chinese academic portal, luxurious bright blue and lavender glassmorphism, serene and precise, high-end 3D product rendering. Single centered complete object on genuinely transparent background, all rings and pedestal fully visible, generous 8 percent transparent padding, nearly square canvas, 1400 by 1400 style resolution. View from slightly above pedestal, the sphere occupies center upper-middle, pedestal bottom 15 percent. No labels, no words, no text, no interface cards, no watermark, no icons, no background scenery, no checkerboard drawn into image. True alpha transparency. Soft blue luminous reflected light, smooth physically based materials and very crisp geometry."
+    },
+    {
+      "file": "earth-horizon.webp",
+      "source": "exec-70dd1d89-71d8-4344-b6f3-cd9f638d7171.png",
+      "transparent": false,
+      "prompt": "Use case: stylized-concept. Asset type: ultra-wide production background artwork for an open-science website call-to-action banner. A photorealistic luminous blue Earth horizon seen from low orbit, curved planetary arc rises gently from bottom edge, planet centered slightly right (at 65 percent horizontal), glowing electric-blue atmospheric rim, delicate white clouds and subtle visible continent/city details, a bright but tasteful sunrise glow behind horizon at bottom center-right. Deep navy at top and left fading into royal blue and indigo on right. Sparse tiny crisp stars, elegant realistic space atmosphere, no nebula clouds, premium scientific editorial cinematic lighting. Wide panoramic 3:1 composition, imagined 1800 by 600 canvas, upper 60 percent and left half stay deep clean blue and low detail to keep overlaid white website text readable. The planet occupies only bottom 35 percent, horizontal horizon appears across the lower edge and must not fill the whole image. No text, no logos, no interface, no frames, no watermark. A finished background image with opaque dark navy blue background."
+    },
+    {
+      "file": "knowledge-globe.webp",
+      "source": "exec-a06b197a-c153-473f-9d6c-18f6872fa38a.png",
+      "transparent": true,
+      "prompt": "Use case: stylized-concept. Asset type: transparent PNG hero illustration for the About page of Open Explore, a polished open-science resource discovery website. Primary request: a beautiful premium 3D translucent glass globe symbolizing open knowledge shared across the world. A single spherical globe made of clear icy blue frosted glass with elegant cobalt blue translucent continent shapes (geographically plausible Earth, Eurasia and Africa facing viewer), restrained thin latitude/longitude curves, 6 small luminous connection nodes on the surface with just 3 delicate light arcs linking them. One very fine gently tilted orbital ring encircles the globe. A small glossy cobalt satellite sphere nearby at upper right and a second tiny pale-blue sphere at lower left. Globe floats above a restrained soft elliptical contact shadow, no platform, no text or labels. Style: high-end photorealistic 3D product rendering, physically based glass, soft white highlights, delicate periwinkle and cyan transmitted light, sophisticated and serene. Composition: complete single centered object, nearly square canvas, generous transparent padding all around, globe fills 73 percent of image, slightly elevated perspective. Color palette: cobalt blue, pearlescent white, pale icy blue, faint lavender. Actual transparent background with true alpha, no checkerboard drawn into image. Avoid dense lines, avoid neon cyberpunk, no text, no logo, no watermarks, no UI, no cards, no galaxies, no stars background. Match a bright blue/lavender glassmorphism scientific website."
+    }
+  ]
+}

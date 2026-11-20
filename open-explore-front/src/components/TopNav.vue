@@ -1,13 +1,9 @@
 <template>
-  <header class="TopNav">
+  <header class="TopNav TopNav--presentation">
     <div class="TopNav__inner">
       <button class="TopNav__logo" type="button" aria-label="Open Explore home" @click="goHome">
         <span class="TopNav__logoMark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="2.5" fill="currentColor" />
-            <ellipse cx="12" cy="12" rx="10" ry="4.5" stroke="currentColor" stroke-width="1.5" transform="rotate(45 12 12)" />
-            <ellipse cx="12" cy="12" rx="10" ry="4.5" stroke="currentColor" stroke-width="1.5" transform="rotate(-45 12 12)" />
-          </svg>
+          <img :src="logoSrc" alt="" />
         </span>
         <span class="TopNav__logoText">Open <strong>Explore</strong></span>
       </button>
@@ -29,7 +25,7 @@
           type="button"
           @click="switchTab('search')"
         >
-          {{ $t('nav.search') }}
+          {{ activeTab === 'home' ? $t('home.discovery') : $t('nav.search') }}
         </button>
         <button
           class="TopNav__tab"
@@ -51,10 +47,14 @@
 
 <script>
 import LanguageSwitcher from './LanguageSwitcher.vue'
+import logoSrc from '../assets/logo.png'
 
 export default {
   name: 'TopNav',
   components: { LanguageSwitcher },
+  data() {
+    return { logoSrc }
+  },
   computed: {
     activeTab() {
       const path = this.$route.path
@@ -125,26 +125,36 @@ export default {
     cursor: pointer;
   }
 
+  &--presentation {
+    height: 64px;
+    background: linear-gradient(100deg, #fbfbffed, #eef4ffed);
+    box-shadow: none;
+    border-bottom-color: #ffffff9c;
+    .TopNav__inner { max-width: none; padding-inline: 40px; gap: 62px; }
+    @media (max-width: 1200px) { .TopNav__inner { padding-inline: 36px; gap: 40px; } }
+    @media (max-width: 980px) { .TopNav__inner { padding-inline: 24px; gap: 30px; } }
+    @media (max-width: 640px) { .TopNav__inner { padding-inline: 24px; gap: 20px; } }
+    @media (max-width: 380px) { .TopNav__inner { padding-inline: 16px; gap: 14px; } }
+  }
+
   &__logoMark {
     display: grid;
     place-items: center;
-    width: 38px;
-    height: 38px;
-    color: #fff;
-    background: linear-gradient(135deg, #2864dc 0%, #544fc6 100%);
-    border-radius: 11px;
-    box-shadow: 0 5px 12px rgba(57, 85, 190, 0.22);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
 
-    svg {
-      width: 25px;
-      height: 25px;
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
     }
   }
 
   &__logo:hover &__logoMark {
     transform: translateY(-1px);
-    box-shadow: 0 7px 16px rgba(57, 85, 190, 0.28);
   }
 
   &__logoText {
@@ -252,14 +262,8 @@ export default {
     }
 
     &__logoMark {
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-
-      svg {
-        width: 23px;
-        height: 23px;
-      }
+      width: 36px;
+      height: 36px;
     }
 
     &__tabs {

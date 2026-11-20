@@ -5,6 +5,7 @@ import zh from './locale/zh'
 import es from './locale/es'
 import ru from './locale/ru'
 import fr from './locale/fr'
+import home from './locale/home'
 
 Vue.use(VueI18n)
 
@@ -37,7 +38,13 @@ localStorage.setItem('language', locale)
 const i18n = new VueI18n({
   locale,
   fallbackLocale: 'en',
-  messages: { en, zh, es, ru, fr }
+  messages: {
+    en: { ...en, home: home.en },
+    zh: { ...zh, home: home.zh },
+    es: { ...es, home: home.es },
+    ru: { ...ru, home: home.ru },
+    fr: { ...fr, home: home.fr }
+  }
 })
 
 export function switchLanguage(lang) {

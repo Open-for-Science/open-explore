@@ -1,1211 +1,487 @@
 <template>
-  <!-- ============================================================ -->
-  <!-- 首页主页面 HomePage                                               -->
-  <!-- 包含：Hero 横幅区 / 统计栏 / 开放科学能力框架 / 四个头条模块 / 底部   -->
-  <!-- ============================================================ -->
-  <div class="HomePage">
-
-    <!-- ============================================================ -->
-    <!-- 1. Hero 横幅区（背景：蓝白科技原子图；左侧：标题 + 搜索框 + 统计）   -->
-    <!-- ============================================================ -->
-    <section class="Hero">
-      <div class="Hero__inner">
-        <div class="Hero__content">
-          <h1 class="Hero__title">{{ $t('hero.title') }}</h1>
-          <p class="Hero__subtitle">{{ $t('hero.subtitle') }}</p>
-
-          <!-- ----- 胶囊搜索框（回车或点击按钮跳转搜索页） ----- -->
-          <form class="Hero__search" @submit.prevent="goSearch">
-            <svg class="Hero__searchIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-              <circle cx="11" cy="11" r="7"></circle>
-              <path d="M20.5 20.5L16 16"></path>
-            </svg>
-            <input
-              v-model="searchKeyword"
-              type="text"
-              :placeholder="$t('hero.searchPlaceholder')"
-            />
-            <button class="Hero__searchBtn" type="submit" aria-label="search">
-              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 10h13M11 5l5 5-5 5"></path>
-              </svg>
-            </button>
-          </form>
-
-          <!-- ----- 统计数字（均由后端动态查询） ----- -->
-          <div class="Hero__stats">
-            <!-- 统计项 1：文章总量 -->
-            <div class="Hero__stat">
-              <svg class="Hero__statIcon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6 3h8l4 4v14H6z"></path>
-                <path d="M14 3v4h4"></path>
-                <path d="M9 12h6M9 16h6"></path>
-              </svg>
-              <div class="Hero__statText">
-                <span class="Hero__statNum">{{ formatNumber(statsData.articleTotal) }}</span>
-                <span class="Hero__statLabel">{{ $t('stats.articleTotal') }}</span>
-              </div>
-            </div>
-            <span class="Hero__statDivider"></span>
-
-            <!-- 统计项 2：科学数据总量 -->
-            <div class="Hero__stat">
-              <svg class="Hero__statIcon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <ellipse cx="12" cy="5" rx="7.5" ry="2.8"></ellipse>
-                <path d="M4.5 5v14c0 1.6 3.4 2.8 7.5 2.8s7.5-1.2 7.5-2.8V5"></path>
-                <path d="M4.5 12c0 1.6 3.4 2.8 7.5 2.8s7.5-1.2 7.5-2.8"></path>
-              </svg>
-              <div class="Hero__statText">
-                <span class="Hero__statNum">{{ formatNumber(statsData.scienceDataTotal) }}</span>
-                <span class="Hero__statLabel">{{ $t('stats.scienceDataTotal') }}</span>
-              </div>
-            </div>
-            <span class="Hero__statDivider"></span>
-
-            <!-- 统计项 3：科学软件总量 -->
-            <div class="Hero__stat">
-              <svg class="Hero__statIcon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M8.5 7L3.5 12l5 5"></path>
-                <path d="M15.5 7l5 5-5 5"></path>
-              </svg>
-              <div class="Hero__statText">
-                <span class="Hero__statNum">{{ formatNumber(statsData.softwareTotal) }}</span>
-                <span class="Hero__statLabel">{{ $t('stats.softwareTotal') }}</span>
-              </div>
-            </div>
-            <span class="Hero__statDivider"></span>
-
-            <!-- 统计项 4：科学装置总量 -->
-            <div class="Hero__stat">
-              <svg class="Hero__statIcon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="2.2"></circle>
-                <ellipse cx="12" cy="12" rx="9.2" ry="4"></ellipse>
-                <ellipse cx="12" cy="12" rx="9.2" ry="4" transform="rotate(60 12 12)"></ellipse>
-                <ellipse cx="12" cy="12" rx="9.2" ry="4" transform="rotate(120 12 12)"></ellipse>
-              </svg>
-              <div class="Hero__statText">
-                <span class="Hero__statNum">{{ formatNumber(statsData.facilityTotal) }}</span>
-                <span class="Hero__statLabel">{{ $t('stats.facilityTotal') }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
+  <div class="HomePage" :lang="$i18n.locale">
+    <main>
+      <div class="page-atmosphere" aria-hidden="true">
+        <svg class="page-waves page-waves--hero" viewBox="0 0 1600 750" preserveAspectRatio="none">
+          <path d="M0 0h280C190 120 100 130 0 140Z" fill="white" opacity=".65" />
+          <path d="M1600 0v280C1470 390 1390 440 1130 466c262-80 405-203 470-466Z" fill="white" opacity=".5" />
+          <path d="M0 460c260 50 370 190 750 255C360 680 140 570 0 580Z" fill="#c5d8ff" opacity=".4" />
+          <path d="M0 490c270 44 360 170 750 225" fill="none" stroke="white" opacity=".75" />
+          <path d="M1600 260c-130 160-260 207-470 206" fill="none" stroke="white" opacity=".85" />
+        </svg>
+        <svg class="page-waves page-waves--middle" viewBox="0 0 1600 430" preserveAspectRatio="none">
+          <path d="M0 130C190 0 300 250 540 200S850 90 1010 140s320-110 440-100 150 70 150 70v320H0Z" fill="#dfe9ff" opacity=".4" />
+          <path d="M0 145C250 15 300 270 650 180s400-20 650-90 200-10 300 10" fill="none" stroke="white" opacity=".45" />
+        </svg>
       </div>
-
-      <!-- ----- 首屏右侧装饰图（原子轨道，绝对定位贴右，不占用文字空间） ----- -->
-      <div class="Hero__art" aria-hidden="true">
-        <img src="@/assets/hero-atom.png" alt="" />
-      </div>
-    </section>
-
-    <!-- ============================================================ -->
-    <!-- 3. 开放科学能力框架（6 张卡片，3x2 网格布局）                    -->
-    <!--     数据来自 /data/homepage.json → resourceTypes               -->
-    <!-- ============================================================ -->
-    <section class="Resources__section">
-      <div class="Section__header">
-        <h2>{{ $t('resources.title') }}</h2>
-        <p>{{ $t('resources.subtitle') }}</p>
-      </div>
-      <div class="Resources__grid">
-        <!-- 遍历 resourceTypes 渲染卡片 -->
-        <div
-          class="Resource__card"
-          v-for="(item, idx) in $t('homepage.resourceTypes')"
-          :key="item.id"
-          :style="{ '--card-delay': idx * 0.05 + 's' }"
-        >
-          <div class="Resource__cardTitle">{{ $t( item.biaoti ) }}</div>
-          <div class="Resource__cardDesc">{{ $t(item.xiangqing) }}</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============================================================ -->
-    <!-- 4. 文献模块 #1（最新文献列表 — 居中显示）                    -->
-    <!--     数据来自后端接口 /article/v1/latest                        -->
-    <!-- ============================================================ -->
-    <section id="highlights" data-screen-label="Resources Highlights" class="Headlines__section">
-      <div class="glow-b"></div>
-      <div class="wrap">
-        <div class="resources-headline-meta">
-          <div class="sec-eyebrow sec-eyebrow--center">
-            {{ $t('headlines.prefix') }} <span class="grad">{{ $t('headlines.prefixHighlight') }}</span>
-          </div>
-        </div>
-        <div class="resources-section-title-wrap">
-          <h2 class="sec-title resources-section-title">{{ $t('headlines.title') }}</h2>
-          <p class="contact-line">{{ $t('headlines.contact') }}<a :href="'mailto:' + $t('contactEmail')">{{ $t('contactEmail') }}</a></p>
-        </div>
-        <!-- 居中展示的文献卡片（无右侧图片网格） -->
-        <div class="headlines-panel headlines-panel--centered">
-          <div class="hl-text-card hl-text-card--centered">
-            <div class="hl-group-title">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;vertical-align:middle"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-              {{ $t('headlines.zongjie') }}
-            </div>
-            <div class="hl-date">{{ currentDate }}</div>
-            <!-- 从左到右：序号 | 文献标题（竖排卡片风格，hover 向右移动） -->
-            <div class="hl-row-list">
-              <div
-                class="hl-card-item"
-                v-for="(art, idx) in latestArticles"
-                :key="idx"
-                @click="$router.push('/article/detail/' + art.uuid)"
-              >
-                <span class="hl-card-index">{{ (idx + 1).toString().padStart(2, '0') }}</span>
-                <div class="hl-card-body">
-                  <h4 class="hl-card-title">{{ art.title || art.journal || $t('headlines.more') }}</h4>
-                  <div class="hl-card-meta">
-                    <span class="hl-card-tag" v-if="art.type">{{ art.type }}</span>
-                    <span class="hl-card-meta-item" v-if="art.author && art.author.length">{{ art.author.slice(0,2).join(', ') }}</span>
-                    <span class="hl-card-meta-item" v-if="art.year || art['pub-year']">{{ art.year || art['pub-year'] }}</span>
-                  </div>
-                </div>
+      <section class="hero" aria-labelledby="home-title">
+        <div class="hero__grid page-width">
+          <div class="hero__content">
+            <div class="hero__eyebrow"><ResourceIcon name="spark" />{{ $t('home.eyebrow') }}</div>
+            <h1 id="home-title">{{ $t('home.title') }}<span>{{ $t('home.titleAccent') }}</span></h1>
+            <p class="hero__intro">{{ $t('home.intro') }}</p>
+            <div class="discovery-search">
+              <div class="search-tabs" role="group" :aria-label="$t('home.discovery')">
+                <button v-for="resource in resources" :key="resource.key" type="button" :class="{ active: searchType === resource.key }" :aria-pressed="searchType === resource.key ? 'true' : 'false'" @click="searchType = resource.key">
+                  <ResourceIcon :name="resource.key" /><span>{{ resource.label }}</span>
+                </button>
               </div>
+              <form class="search-field" role="search" @submit.prevent="goSearch()">
+                <ResourceIcon name="search" />
+                <input id="home-search" v-model="searchKeyword" type="search" :aria-label="$t('home.placeholder')" :placeholder="$t('home.placeholder')" autocomplete="off" />
+                <button type="submit">{{ $t('home.search') }}</button>
+              </form>
             </div>
-            <router-link to="/search" class="site-btn hl-detail-btn hl-detail-btn--centered">
-              {{ $t('headlines.more') }}
-              <svg width="14" height="12" viewBox="0 0 14 12" fill="none">
-                <path d="M1 6h11M8.5 1.5L13 6l-4.5 4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
-              </svg>
-            </router-link>
+            <div class="hero__topics">
+              <span>{{ $t('home.topicsLabel') }}</span>
+              <button v-for="topic in $t('home.topics')" :key="topic" type="button" @click="goSearch(topic)">{{ topic }}</button>
+            </div>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <span class="hero-art__cross hero-art__cross--top">+</span>
+            <span class="hero-art__cross hero-art__cross--bottom">+</span>
+            <img class="hero-art__atom" src="@/assets/generated/science-atom.webp" alt="" width="1254" height="1254" fetchpriority="high" />
+            <div v-for="resource in resources" :key="resource.key" class="art-label" :class="'art-label--' + resource.key">
+              <span class="resource-icon" :class="'resource-icon--' + resource.key"><ResourceIcon :name="resource.key" /></span>
+              <span>{{ resource.label }}</span>
+            </div>
+            <div class="hero-art__caption"><span></span>{{ $t('home.artCaption') }}</div>
           </div>
         </div>
+      </section>
+      <section class="stats-band" :aria-label="$t('home.discovery')">
+        <div class="stats-band__inner page-width">
+          <div v-for="resource in resources" :key="resource.key" class="stat">
+            <ResourceIcon :name="resource.key" />
+            <div><strong>{{ formatNumber(stats[resource.stat]) }}</strong><span>{{ resource.label }}</span></div>
+          </div>
+        </div>
+      </section>
+      <section class="resource-section page-width" aria-labelledby="resources-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">{{ $t('home.resourceEyebrow') }}</p>
+            <h2 id="resources-title">{{ $t('home.resourceTitle') }}</h2>
+            <p class="section-intro">{{ $t('home.resourceIntro') }}</p>
+          </div>
+          <router-link class="text-link" to="/search">{{ $t('home.browseAll') }}<ResourceIcon name="arrow" /></router-link>
+        </div>
+        <div class="resource-grid">
+          <router-link v-for="resource in resources" :key="resource.key" class="resource-card" :class="'resource-card--' + resource.key" :to="searchRoute(resource.key)">
+            <div class="resource-card__top">
+              <span class="resource-icon" :class="'resource-icon--' + resource.key"><ResourceIcon :name="resource.key" /></span>
+              <span class="resource-card__english">{{ resource.english }}</span>
+            </div>
+            <h3>{{ resource.label }}</h3>
+            <p>{{ $t('home.descriptions.' + resource.key) }}</p>
+            <div class="resource-card__bottom">
+              <span class="resource-card__count"><ResourceIcon name="sciencedata" /><strong>{{ formatNumber(stats[resource.stat]) }}</strong> {{ $t('home.records') }}</span>
+              <span class="resource-card__action">{{ $t('home.explore') }}<ResourceIcon name="arrow" /></span>
+            </div>
+          </router-link>
+        </div>
+      </section>
+      <section class="latest-section" aria-labelledby="latest-title">
+        <div class="page-width">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">{{ $t('home.latestEyebrow') }}</p>
+              <h2 id="latest-title">{{ $t('home.latestTitle') }}</h2>
+              <p class="section-intro">{{ $t('home.latestIntro') }}</p>
+            </div>
+            <div class="latest-section__motif" aria-hidden="true"><i></i><i></i><i></i></div>
+          </div>
+          <div class="latest-toolbar">
+            <div class="latest-tabs" role="tablist" :aria-label="$t('home.latestTitle')">
+              <button v-for="resource in resources" :id="'latest-tab-' + resource.key" :key="resource.key" :ref="'latestTab-' + resource.key" type="button" role="tab" :aria-selected="latestType === resource.key ? 'true' : 'false'" aria-controls="latest-panel" :tabindex="latestType === resource.key ? 0 : -1" :class="{ active: latestType === resource.key }" @click="latestType = resource.key" @keydown="onLatestTabKeydown($event, resource.key)">
+                <ResourceIcon :name="resource.key" />{{ resource.label }}
+              </button>
+            </div>
+            <router-link class="text-link" :to="searchRoute(latestType)">{{ $t('home.viewMore') }}<ResourceIcon name="arrow" /></router-link>
+          </div>
+          <div id="latest-panel" class="latest-panel" role="tabpanel" :aria-labelledby="'latest-tab-' + latestType" :aria-busy="currentFeed.status === 'loading' ? 'true' : 'false'" tabindex="0">
+            <div v-if="currentFeed.status === 'loading'" class="feed-state" role="status">
+              <ResourceIcon class="loading-icon" name="refresh" /><p>{{ $t('home.loading') }}</p>
+            </div>
+            <div v-else-if="currentFeed.status === 'error'" class="feed-state" role="status">
+              <ResourceIcon name="globe" /><h3>{{ $t('home.errorTitle') }}</h3><p>{{ $t('home.error') }}</p>
+              <button class="retry-button" type="button" @click="loadFeed(latestType)">{{ $t('home.retry') }}</button>
+            </div>
+            <div v-else-if="!currentFeed.items.length" class="feed-state" role="status">
+              <ResourceIcon name="spark" /><h3>{{ $t('home.emptyTitle') }}</h3><p>{{ $t('home.empty') }}</p>
+            </div>
+            <div v-else class="latest-grid">
+              <router-link v-for="(item, index) in currentFeed.items" :key="item.uuid || index" class="latest-card" :to="resourceRoute(item, latestType)" :aria-label="resourceTitle(item) + ' · ' + $t('home.viewDetail')">
+                <div class="latest-card__meta"><span class="type-tag" :class="'type-tag--' + latestType">{{ resourceType(item) }}</span><span v-if="resourceYear(item)">{{ resourceYear(item) }}</span></div>
+                <h3>{{ resourceTitle(item) }}</h3>
+                <p class="latest-card__abstract">{{ resourceDescription(item) }}</p>
+                <div class="latest-card__footer"><span>{{ resourceSource(item) }}</span><ResourceIcon :name="latestType" /></div>
+              </router-link>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="mission-section page-width" aria-labelledby="mission-title">
+        <div class="mission">
+          <div class="mission__content">
+            <p class="eyebrow">{{ $t('home.missionEyebrow') }}</p>
+            <h2 id="mission-title">{{ $t('home.missionTitle') }}</h2>
+            <p>{{ $t('home.missionIntro') }}</p>
+            <div class="mission__tags"><span v-for="tag in $t('home.missionTags')" :key="tag"><ResourceIcon name="check" />{{ tag }}</span></div>
+          </div>
+          <router-link class="mission__button" to="/about">{{ $t('home.about') }}<ResourceIcon name="arrow" /></router-link>
+        </div>
+      </section>
+    </main>
+    <footer class="home-footer page-width">
+      <div class="home-footer__top">
+        <div class="home-footer__brand"><img src="@/assets/logo.png" alt="" width="36" height="36" /><div><strong>Open Explore</strong><p>{{ $t('home.footerTagline') }}</p></div></div>
+        <nav :aria-label="$t('home.discovery')"><router-link to="/search">{{ $t('home.discovery') }}</router-link><router-link to="/about">{{ $t('nav.about') }}</router-link><a :href="'mailto:' + $t('contactEmail')"><ResourceIcon name="mail" />{{ $t('home.contact') }}</a></nav>
       </div>
-    </section>
-
-    <!-- ============================================================ -->
-    <!-- 5. 科学数据 #2（动态数据，同模块 #1 文献样式）               -->
-    <!--     数据来自后端接口 /searchApi/sciencedata/v1/latest, size=5      -->
-    <!--     展示最新科学数据，hover 向右位移，点击跳详情页                -->
-    <!-- ============================================================ -->
-    <section id="highlights-2" data-screen-label="Science Data Highlights" class="Headlines__section">
-      <div class="glow-b"></div>
-      <div class="wrap">
-        <div class="resources-headline-meta">
-          <div class="sec-eyebrow sec-eyebrow--center">
-            {{ $t('headlines2.prefix') }} <span class="grad">{{ $t('headlines2.prefixHighlight') }}</span>
-          </div>
-        </div>
-        <div class="resources-section-title-wrap">
-          <h2 class="sec-title resources-section-title">{{ $t('headlines2.title') }}</h2>
-          <p class="contact-line">{{ $t('headlines2.contact') }}<a :href="'mailto:' + $t('contactEmail')">{{ $t('contactEmail') }}</a></p>
-        </div>
-        <div class="headlines-panel headlines-panel--centered">
-          <!-- 居中：序号 + 标题（竖排卡片风格，同文献模块） -->
-          <div class="hl-text-card hl-text-card--centered">
-            <div class="hl-group-title">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;vertical-align:middle"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2" stroke="currentColor"/></svg>
-              {{ $t('headlines2.zongjie') }}
-            </div>
-            <div class="hl-date">{{ currentDate }}</div>
-            <div class="hl-row-list">
-              <div
-                class="hl-card-item"
-                v-for="(item, idx) in latestScienceData"
-                :key="'sc2-' + idx"
-                @click="goScienceData(item.uuid)"
-              >
-                <span class="hl-card-index">{{ (idx + 1).toString().padStart(2, '0') }}</span>
-                <div class="hl-card-body">
-                  <h4 class="hl-card-title">{{ item.title || item['title-en'] || $t('headlines2.more') }}</h4>
-                  <div class="hl-card-meta">
-                    <span class="hl-card-tag hl-card-tag--green" v-if="item['dataset-type']">{{ item['dataset-type'] }}</span>
-                    <span class="hl-card-meta-item" v-if="item.author && item.author.length">{{ item.author.slice(0,2).join(', ') }}</span>
-                    <span class="hl-card-meta-item" v-if="item['pub-year']">{{ item['pub-year'] }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <router-link to="/search?tab=sciencedata" class="site-btn hl-detail-btn hl-detail-btn--centered">
-              {{ $t('headlines2.more') }}
-              <svg width="14" height="12" viewBox="0 0 14 12" fill="none">
-                <path d="M1 6h11M8.5 1.5L13 6l-4.5 4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
-              </svg>
-            </router-link>
-          </div>
-        </div>
-      </div>
-    </section>
-    <!-- ============================================================ -->
-    <!-- 6. 科学软件模块 #3（居中：序号 + 标题，同科学数据模块样）            -->
-    <!--     数据来自后端接口 /searchApi/software/v1/latest, size=3          -->
-    <!--     展示最新 3 条软件，hover 向右位移，点击跳详情页                -->
-    <!-- ============================================================ -->
-    <section id="highlights-3" data-screen-label="Software Highlights" class="Headlines__section">
-      <div class="glow-b"></div>
-      <div class="wrap">
-        <div class="resources-headline-meta">
-          <div class="sec-eyebrow sec-eyebrow--center">
-            {{ $t('headlines3.prefix') }} <span class="grad">{{ $t('headlines3.prefixHighlight') }}</span>
-          </div>
-        </div>
-        <div class="resources-section-title-wrap">
-          <h2 class="sec-title resources-section-title">{{ $t('headlines3.title') }}</h2>
-          <p class="contact-line">{{ $t('headlines3.contact') }}<a :href="'mailto:' + $t('contactEmail')">{{ $t('contactEmail') }}</a></p>
-        </div>
-        <div class="headlines-panel headlines-panel--centered">
-          <div class="hl-text-card hl-text-card--centered">
-            <div class="hl-group-title">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;vertical-align:middle"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8" stroke="currentColor"/></svg>
-              {{ $t('headlines3.zongjie') }}
-            </div>
-            <div class="hl-date">{{ currentDate }}</div>
-            <div class="hl-row-list">
-              <div
-                class="hl-card-item"
-                v-for="(item, idx) in latestSoftware"
-                :key="'sw-' + idx"
-                @click="$router.push('/software/detail/' + item.uuid)"
-              >
-                <span class="hl-card-index">{{ (idx + 1).toString().padStart(2, '0') }}</span>
-                <div class="hl-card-body">
-                  <h4 class="hl-card-title">{{ item.title || item['title-en'] || $t('headlines3.more') }}</h4>
-                  <div class="hl-card-meta">
-                    <span class="hl-card-tag" v-if="item.category">{{ item.category }}</span>
-                    <span class="hl-card-tag hl-card-tag--orange" v-if="item.license">{{ item.license }}</span>
-                    <span class="hl-card-meta-item" v-if="item.organization">{{ item.organization }}</span>
-                    <span class="hl-card-meta-item" v-if="item['pub-year']">{{ item['pub-year'] }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <router-link to="/search?tab=software" class="site-btn hl-detail-btn hl-detail-btn--centered">
-              {{ $t('headlines3.more') }}
-              <svg width="14" height="12" viewBox="0 0 14 12" fill="none">
-                <path d="M1 6h11M8.5 1.5L13 6l-4.5 4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
-              </svg>
-            </router-link>
-          </div>
-        </div>
-      </div>
-    </section>
-    <!-- ============================================================ -->
-    <!-- 7. 大型科学装置模块 #4（左侧：文字列表 + 右侧：图片网格）       -->
-    <!--     数据来自后端接口 /searchApi/facility/v1/latest, size=3          -->
-    <!--     展示最新 3 条装置（左文右图），点击跳详情页                   -->
-    <!-- ============================================================ -->
-    <section id="highlights-4" data-screen-label="Facility Highlights" class="Headlines__section">
-      <div class="glow-b"></div>
-      <div class="wrap">
-        <div class="resources-headline-meta">
-          <div class="sec-eyebrow sec-eyebrow--center">
-            {{ $t('headlines4.prefix') }} <span class="grad">{{ $t('headlines4.prefixHighlight') }}</span>
-          </div>
-        </div>
-        <div class="resources-section-title-wrap">
-          <h2 class="sec-title resources-section-title">{{ $t('headlines4.title') }}</h2>
-          <p class="contact-line">{{ $t('headlines4.contact') }}<a :href="'mailto:' + $t('contactEmail')">{{ $t('contactEmail') }}</a></p>
-        </div>
-        <div class="headlines-panel">
-          <!-- 左侧：文字列表（序号 + 标题 + 跳转） -->
-          <div class="hl-text-card">
-            <div class="hl-group-title">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;vertical-align:middle"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="currentColor"/></svg>
-              {{ $t('headlines4.zongjie') }}
-            </div>
-            <div class="hl-date">{{ currentDate }}</div>
-            <div class="hl-row-list">
-              <div
-                class="hl-card-item"
-                v-for="(item, idx) in latestFacility"
-                :key="'fc-' + idx"
-                @click="$router.push('/facility/detail/' + item.uuid)"
-              >
-                <span class="hl-card-index">{{ (idx + 1).toString().padStart(2, '0') }}</span>
-                <div class="hl-card-body">
-                  <h4 class="hl-card-title">{{ item.title || item['title-en'] || $t('headlines4.more') }}</h4>
-                  <div class="hl-card-meta">
-                    <span class="hl-card-tag" v-if="item['facility-type']">{{ item['facility-type'] }}</span>
-                    <span class="hl-card-tag hl-card-tag--green" v-if="item['facility-status']">{{ item['facility-status'] }}</span>
-                    <span class="hl-card-meta-item" v-if="item['facility-location']">{{ item['facility-location'] }}</span>
-                    <span class="hl-card-meta-item" v-if="item['hosting_institution']">{{ item['hosting_institution'] }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <router-link to="/search?tab=facility" class="site-btn hl-detail-btn">
-              {{ $t('headlines4.more') }}
-              <svg width="14" height="12" viewBox="0 0 14 12" fill="none">
-                <path d="M1 6h11M8.5 1.5L13 6l-4.5 4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
-              </svg>
-            </router-link>
-          </div>
-          <!-- 右侧：图片网格（从装置数据中提取图片） -->
-          <div class="hl-figures">
-            <div class="figure-card" v-for="(item, idx) in latestFacility" :key="'fig-' + idx" @click="$router.push('/facility/detail/' + item.uuid)">
-              <img :src="item.image" :alt="item.title" loading="lazy" width="640" height="360" class="figure-img">
-              <div class="figure-cap">
-                <span class="cap-txt">{{ item.title }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-
-    <!-- ============================================================ -->
-    <!-- 8. 页脚（品牌信息 / 联系方式 / 版权）                            -->
-    <!--     数据来自 homepage.json → footer                            -->
-    <!-- ============================================================ -->
-    <footer class="Footer__section">
-      <div class="Footer__inner">
-        <div class="Footer__brand">
-          <h3 class="Footer__logo">{{ $t('homepage.footer.brandName') }}</h3>
-          <p class="Footer__orgName">{{ $t('homepage.footer.institutionName') }}</p>
-        </div>
-        <div class="Footer__contact">
-          <h4 class="Footer__contactTitle">{{ $t('footer.contactUs') }}</h4>
-          <div class="Footer__contactItem">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-            <span>{{ $t('homepage.footer.address') }}</span>
-          </div>
-          <div class="Footer__contactItem">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-            <a :href="'mailto:' + $t('homepage.footer.email')">{{ $t('homepage.footer.email') }}</a>
-          </div>
-        </div>
-        <div class="Footer__copyright">{{ $t('footer.copyright') }}</div>
-      </div>
+      <div class="home-footer__bottom"><span>© {{ year }} Open Explore</span><span>{{ $t('home.copyright') }}</span><span>OPEN SCIENCE · OPEN POSSIBILITIES</span></div>
     </footer>
   </div>
 </template>
 
 <script>
+import ResourceIcon from '@/components/ResourceIcon.vue'
+
+const RESOURCE_TYPES = [
+  { key: 'article', stat: 'articleTotal', english: 'LITERATURE' },
+  { key: 'sciencedata', stat: 'scienceDataTotal', english: 'SCIENTIFIC DATA' },
+  { key: 'software', stat: 'softwareTotal', english: 'OPEN SOURCE' },
+  { key: 'facility', stat: 'facilityTotal', english: 'RESEARCH FACILITIES' }
+]
+
 export default {
   name: 'HomePage',
-  // ========================================================== //
-  // 组件数据定义                                                //
-  // ========================================================== //
+  components: { ResourceIcon },
   data() {
     return {
-      searchKeyword: '',         // 搜索框输入的关键词
-      // ----- 统计栏数据（来自后端 /stats/v1/totals）----- //
-      statsData: { articleTotal: 0, scienceDataTotal: 0 },
-      latestArticles: [],        // 最新文章列表（来自 /article/v1/latest）
-      latestScienceData: [],     // 最新科学数据列表（来自 /sciencedata/v1/latest）
-      latestSoftware: [],        // 最新科学软件列表（来自 /software/v1/latest）
-      latestFacility: [],        // 最新科学装置列表（来自 /facility/v1/latest）
-      currentDate: ''            // 格式化后的当前日期
+      searchKeyword: '', searchType: 'article', latestType: 'article', stats: {},
+      feeds: Object.fromEntries(RESOURCE_TYPES.map(({ key }) => [key, { status: 'loading', items: [] }])),
+      year: new Date().getFullYear()
     }
   },
-  // ========================================================== //
-  // 生命周期钩子                                                //
-  // ========================================================== //
-  // 组件创建时加载首页数据
-  created() {
-    this.loadHomepage()
+  computed: {
+    resources() { return RESOURCE_TYPES.map(resource => ({ ...resource, label: this.$t('search.tab.' + resource.key) })) },
+    currentFeed() { return this.feeds[this.latestType] }
   },
-
-  // ========================================================== //
-  // 方法定义                                                   //
-  // ========================================================== //
+  created() {
+    this.requestControllers = new Set()
+    this.loadStats()
+    RESOURCE_TYPES.forEach(({ key }) => this.loadFeed(key))
+  },
+  beforeDestroy() { this.requestControllers.forEach(controller => controller.abort()) },
   methods: {
-    /**
-     * 加载首页所有数据
-     * 并行请求：
-     *   1. /data/homepage.json  →  静态配置（轮播、卡片、头条等）
-     *   2. /searchApi/stats/v1/totals  →  统计数字（文章/科学数据总量）
-     *   3. /searchApi/article/v1/latest?size=3  →  最新 3 篇文章
-     *   4. /searchApi/sciencedata/v1/latest?size=3  →  最新 3 条科学数据
-     *   5. /searchApi/software/v1/latest?size=3   →  最新 3 条软件
-     *   6. /searchApi/facility/v1/latest?size=3   →  最新 3 条装置
-     */
-    async loadHomepage() {
+    searchRoute(type, query = '') { return { path: '/search', query: { tab: type, ...(query ? { query } : {}) } } },
+    goSearch(keyword) {
+      const query = (typeof keyword === 'string' ? keyword : this.searchKeyword).trim()
+      this.$router.push(this.searchRoute(this.searchType, query))
+    },
+    async request(path) {
+      const controller = new AbortController()
+      this.requestControllers.add(controller)
+      const timeout = setTimeout(() => controller.abort(), 10000)
       try {
-        const [statsRes, articleRes, scienceRes, softwareRes, facilityRes] = await Promise.all([
-          fetch('/searchApi/stats/v1/totals'),
-          fetch('/searchApi/article/v1/latest?size=3'),
-          fetch('/searchApi/sciencedata/v1/latest?size=3'),
-          fetch('/searchApi/software/v1/latest?size=3'),
-          fetch('/searchApi/facility/v1/latest?size=3')
-        ])
-        if (statsRes.ok) {
-          const statsJson = await statsRes.json()
-          if (statsJson.data) {
-            this.statsData = statsJson.data
-          }
-        }
-        if (articleRes.ok) {
-          const articleJson = await articleRes.json()
-          if (articleJson.data && articleJson.data.content) {
-            this.latestArticles = articleJson.data.content
-          }
-        }
-        if (scienceRes.ok) {
-          const scienceJson = await scienceRes.json()
-          if (scienceJson.data && scienceJson.data.content) {
-            this.latestScienceData = scienceJson.data.content
-          }
-        }
-        if (softwareRes.ok) {
-          const softwareJson = await softwareRes.json()
-          if (softwareJson.data && softwareJson.data.content) {
-            this.latestSoftware = softwareJson.data.content
-          }
-        }
-        if (facilityRes.ok) {
-          const facilityJson = await facilityRes.json()
-          if (facilityJson.data && facilityJson.data.content) {
-            this.latestFacility = facilityJson.data.content
-          }
-        }
-        this.currentDate = this.getFormattedDate()
-      } catch (e) {
-        console.error('Failed to load homepage data:', e)
+        const response = await fetch('/searchApi/' + path, { signal: controller.signal })
+        if (!response.ok) throw new Error('Request failed')
+        const json = await response.json()
+        if ((json.code !== undefined && json.code !== 0) || !json.data) throw new Error('Invalid response')
+        return json.data
+      } finally {
+        clearTimeout(timeout)
+        this.requestControllers.delete(controller)
       }
     },
-    /**
-     * 格式化数字为千分位逗号分隔
-     * 例：1234567 → "1,234,567"
-     */
-    formatNumber(num) {
-      if (!num && num !== 0) return '0'
-      return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+    async loadStats() {
+      try { this.stats = await this.request('stats/v1/totals') } catch (_) { this.stats = {} }
     },
-    /**
-     * 返回格式化的当前日期（中文格式）
-     * 例：2026年07月14日
-     */
-    /**
-     * 跳转到科学数据详情页
-     */
-    goScienceData(uuid) {
-      if (uuid) {
-        this.$router.push('/sciencedata/detail/' + uuid)
-      }
+    async loadFeed(type) {
+      this.feeds[type].status = 'loading'
+      try {
+        const data = await this.request(type + '/v1/latest?size=3')
+        if (!Array.isArray(data.content)) throw new Error('Invalid resource list')
+        this.feeds[type] = { status: 'ready', items: data.content.slice(0, 3) }
+      } catch (_) { this.feeds[type] = { status: 'error', items: [] } }
     },
-    getFormattedDate() {
-      const d = new Date()
-      const y = d.getFullYear()
-      const m = d.getMonth() + 1
-      const day = d.getDate()
-      return y + '年' + (m < 10 ? '0' + m : m) + '月' + (day < 10 ? '0' + day : day) + '日'
+    formatNumber(value) {
+      if (value === undefined || value === null || value === '') return '—'
+      const match = String(value).match(/^(\d+)(\+?)$/)
+      return match ? Number(match[1]).toLocaleString(this.$i18n.locale) + match[2] : String(value)
     },
-    /**
-     * 搜索按钮/回车事件：携带关键词跳转到文章搜索页
-     */
-    goSearch() {
-      const kw = this.searchKeyword.trim()
-      if (kw) {
-        this.$router.push({ path: '/search', query: { query: kw } })
-      }
+    resourceRoute(item, type) { return item.uuid ? { path: '/' + type + '/detail/' + encodeURIComponent(item.uuid) } : this.searchRoute(type, this.resourceTitle(item)) },
+    resourceTitle(item) { return item.title || item['title-en'] || this.$t('home.unknownSource') },
+    resourceDescription(item) {
+      const description = item.abstracts || item.description || item.abstract || this.$t('home.noDescription')
+      return Array.isArray(description) ? description.join(' ') : String(description)
+    },
+    resourceType(item) { return item.type || item['dataset-type'] || item.category || this.$t('search.tab.' + this.latestType) },
+    resourceYear(item) { return item.year || item['pub-year'] || '' },
+    resourceSource(item) {
+      const source = item.journal || item.organization || item.institution || item.author || item.provider
+      return (Array.isArray(source) ? source.slice(0, 2).join(' · ') : source) || this.$t('home.unknownSource')
+    },
+    onLatestTabKeydown(event, key) {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return
+      event.preventDefault()
+      const index = RESOURCE_TYPES.findIndex(resource => resource.key === key)
+      const count = RESOURCE_TYPES.length
+      const next = event.key === 'Home' ? 0 : event.key === 'End' ? count - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + count) % count
+      this.latestType = RESOURCE_TYPES[next].key
+      this.$nextTick(() => this.$refs['latestTab-' + this.latestType][0].focus())
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-$primary: #2F3A91;
-$primaryDark: #2A3D76;
-$textDark: #1a1a2e;
-$textGray: #6c757d;
+$blue: #1754ec;
+$ink: #111e3e;
+$muted: #586780;
 
 .HomePage {
   width: 100%;
-  min-height: 100%;
-  overflow-x: hidden;
-}
-
-/* ===================== 通用区块标题 ===================== */
-.Section__header {
-  text-align: center;
-  margin-bottom: 36px;
-  h2 {
-    font-size: 28px;
-    font-weight: 700;
-    color: $textDark;
-    margin: 0 0 12px;
-    letter-spacing: 0.5px;
-  }
-  p {
-    font-size: 16px;
-    color: $textGray;
-    margin: 0;
-    max-width: 600px;
-    margin: 0 auto;
-    line-height: 1.6;
-  }
-}
-
-/* ===================== Hero 横幅区（背景图 + 左侧内容 + 统计） ===================== */
-.Hero {
-  position: relative;
-  width: 100%;
-  /* 首屏高度固定为 banner 图高度 602px */
-  height: 602px;
-  overflow: hidden;
-  background: #eaf0fb url("~@/assets/hero-bg.jpg") center / cover no-repeat;
-
-  /* 左侧白色渐隐，保证文字可读 */
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0.92) 0%,
-      rgba(255, 255, 255, 0.72) 38%,
-      rgba(255, 255, 255, 0.18) 60%,
-      rgba(255, 255, 255, 0) 72%
-    );
-    pointer-events: none;
-  }
-}
-.Hero__inner {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 40px;
-  width: 100%;
-  max-width: 1180px;
-  height: 100%;
-  margin: 0 auto;
-  padding: 0 40px;
-  box-sizing: border-box;
-}
-.Hero__content {
-  flex: 1 1 auto;
-  min-width: 0;
-  max-width: 680px;
-}
-
-/* ----- 首屏右侧装饰图：原子轨道（绝对定位，贴右侧并允许轻微出血） ----- */
-.Hero__art {
-  position: absolute;
-  top: 50%;
-  right: -2%;
-  z-index: 0;
-  width: min(46vw, 720px);
-  transform: translateY(-50%);
-  pointer-events: none;
-  mix-blend-mode: multiply;
-
-  img {
-    display: block;
-    width: 100%;
-    height: auto;
-    animation: heroFloat 7s ease-in-out infinite;
-  }
-}
-@keyframes heroFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-12px); }
-}
-.Hero__title {
-  font-size: clamp(34px, 4vw, 58px);
-  font-weight: 800;
-  line-height: 1.14;
-  letter-spacing: -1px;
-  color: #1b2559;
-  margin: 0 0 18px;
-  animation: fadeInUp 0.6s ease both;
-}
-.Hero__subtitle {
-  font-size: 18px;
-  line-height: 1.75;
-  color: #5b6591;
-  max-width: 470px;
-  margin: 0 0 34px;
-  animation: fadeInUp 0.6s ease 0.08s both;
-}
-
-/* ----- 胶囊搜索框 ----- */
-.Hero__search {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  max-width: 640px;
-  height: 56px;
-  padding: 0 8px 0 20px;
-  background: #fff;
-  border: 1px solid rgba(96, 120, 220, 0.16);
-  border-radius: 999px;
-  box-shadow: 0 10px 28px rgba(38, 58, 160, 0.1);
-  animation: fadeInUp 0.6s ease 0.16s both;
-
-  input {
-    flex: 1;
-    min-width: 0;
-    height: 100%;
-    border: none;
-    outline: none;
-    background: transparent;
-    font-size: 15px;
-    color: #1b2559;
-    &::placeholder {
-      color: #98a1bd;
-    }
-  }
-}
-.Hero__searchIcon {
-  flex-shrink: 0;
-  color: #8b95b8;
-}
-.Hero__searchBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  flex-shrink: 0;
-  border: none;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #4a6cf7 0%, #2f47c8 100%);
-  color: #fff;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  &:hover {
-    transform: translateX(2px);
-    box-shadow: 0 6px 16px rgba(47, 71, 200, 0.45);
-  }
-}
-
-/* ----- Hero 底部统计行 ----- */
-.Hero__stats {
-  display: flex;
-  align-items: center;
-  gap: 28px;
-  margin-top: 48px;
-  animation: fadeInUp 0.6s ease 0.24s both;
-}
-.Hero__stat {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.Hero__statIcon {
-  flex-shrink: 0;
-  color: #5b6bc0;
-}
-.Hero__statText {
-  display: flex;
-  flex-direction: column;
-}
-.Hero__statNum {
-  font-size: 19px;
-  font-weight: 800;
-  line-height: 1.2;
-  color: #1b2559;
-}
-.Hero__statLabel {
-  margin-top: 2px;
-  font-size: 12px;
-  color: #6b7595;
-  white-space: nowrap;
-}
-.Hero__statDivider {
-  width: 1px;
-  height: 34px;
-  background: rgba(27, 37, 89, 0.12);
-}
-
-/* ===================== 开放科学能力框架（居中对齐 3x2 网格） ===================== */
-.Resources__section {
-  padding: 80px 24px;
-  background: #f8f9fc;
-  text-align: center;
-}
-.Resources__grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  max-width: 1000px;
-  margin: 0 auto;
-  text-align: left;
-}
-.Resource__card {
-  background: #fff;
-  border-radius: 10px;
-  padding: 24px 20px;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.05);
-  transition: transform 0.25s, box-shadow 0.25s;
-  animation: fadeInUp 0.5s ease both;
-  animation-delay: var(--card-delay);
-  border: 1px solid #eee;
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(47,58,145,0.10);
-    border-color: lighten($primary, 40%);
-  }
-}
-.Resource__cardIcon {
-  font-size: 15px;
-  margin-bottom: 12px;
-}
-.Resource__cardTitle {
+  color: $ink;
+  background: #f6f8ff;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   font-size: 16px;
-  font-weight: 700;
-  color: $textDark;
-  margin-bottom: 6px;
-}
-.Resource__cardDesc {
-  font-size: 13px;
-  color: $textGray;
   line-height: 1.6;
-  margin-bottom: 10px;
+  letter-spacing: normal;
+  scroll-behavior: smooth;
+  *, *::before, *::after { box-sizing: border-box; }
+  button, input { font: inherit; }
+  button, a { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  button { cursor: pointer; }
+  a { color: inherit; text-decoration: none; }
+  button:focus-visible, a:focus-visible, [tabindex="0"]:focus-visible { outline: 3px solid #80a7ff; outline-offset: 4px; }
+  svg { width: 24px; height: 24px; flex-shrink: 0; }
+  main { position: relative; isolation: isolate; }
 }
-.Resource__cardCount {
-  font-size: 12px;
-  color: $primary;
-  .count {
-    font-weight: 800;
-    font-size: 15px;
+h1, h2, h3, p { margin: 0; }
+.page-width { width: min(1120px, calc(100% - 80px)); margin-inline: auto; }
+.page-atmosphere {
+  position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none;
+  background:
+    radial-gradient(ellipse 72% 25% at 80% 4%, #b3cfff9e, transparent 90%),
+    radial-gradient(ellipse 48% 20% at 0 8%, #e4dbff8c, transparent 85%),
+    radial-gradient(ellipse 55% 30% at 99% 53%, #eae2ff85, transparent 85%),
+    radial-gradient(ellipse 50% 29% at 0 56%, #e5f1ffbc, transparent 85%),
+    linear-gradient(180deg, #eef2ff 0%, #f8faff 41%, #f6f8ff 100%);
+}
+.HomePage .page-waves { position: absolute; left: 0; width: 100%; pointer-events: none; &--hero { top: 0; height: 730px; } &--middle { top: 870px; height: 390px; } }
+.page-waves--middle { mask-image: linear-gradient(to bottom, #000 55%, transparent 100%); }
+.hero { position: relative; overflow: hidden; }
+.hero__grid { display: grid; grid-template-columns: 1.06fr 1fr; align-items: center; min-height: 510px; padding-block: 48px 58px; gap: 35px; }
+.hero__content { position: relative; z-index: 2; min-width: 0; }
+.hero__eyebrow { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; color: #244a9d; font-size: .875rem; font-weight: 500; svg { width: 17px; height: 17px; padding: 2px; border-radius: 50%; color: white; background: #4d63ff; } }
+.hero h1 { font-size: clamp(2.5rem, 3.35vw, 3.1rem); font-weight: 750; letter-spacing: -.04em; line-height: 1.25; span { display: block; margin-top: 5px; color: $blue; } }
+.hero__intro { max-width: 550px; margin-top: 22px; color: #53617b; font-size: 1rem; line-height: 1.8; white-space: pre-line; }
+.discovery-search { margin-top: 27px; }
+.search-tabs, .latest-tabs { display: flex; gap: 22px; max-width: 100%; overflow-x: auto; scrollbar-width: none; &::-webkit-scrollbar { display: none; }
+  button { display: inline-flex; flex-shrink: 0; align-items: center; gap: 5px; padding: 0 0 9px; border: 0; border-bottom: 2px solid transparent; color: #5e6a83; background: transparent; font-size: .875rem; white-space: nowrap;
+    svg { width: 16px; height: 16px; }
+    &.active { color: $blue; border-bottom-color: $blue; font-weight: 600; }
+    &:hover { color: $blue; }
+    &:focus-visible { outline-offset: -3px; }
   }
 }
-
-/* ===================== 头条/亮点模块（os10 风格） ===================== */
-.Headlines__section {
-  position: relative;
-  padding: 60px 24px;
-  background: #f5f7fa;
-  overflow: hidden;
+.search-tabs { padding: 0 3px 8px; }
+.search-field { display: flex; align-items: center; gap: 11px; height: 55px; padding: 5px 5px 5px 16px; border: 1px solid #b9cdff; border-radius: 12px; background: #ffffffed; box-shadow: 0 4px 12px #5c7ce114, inset 0 0 0 2px #fff; transition: border-color .2s, box-shadow .2s;
+  > svg { width: 20px; height: 20px; color: #6685dc; }
+  &:focus-within { border-color: $blue; box-shadow: 0 0 0 3px #1754ec18; }
+  input { min-width: 0; width: 100%; height: 100%; padding: 0; border: 0; outline: 0; color: $ink; background: transparent; font-size: 1rem; &::placeholder { color: #8d96ac; } }
+  button { flex-shrink: 0; align-self: stretch; padding: 0 23px; border: 1px solid #668fff; border-radius: 9px; color: #fff; background: linear-gradient(145deg, #276aff, #1045e5); box-shadow: 0 3px 9px #1d51e13d, inset 0 1px 2px #ffffff4d; font-size: .875rem; font-weight: 600; &:hover { background: #1246cc; } }
 }
-.glow-b {
-  position: absolute;
-  top: -200px;
-  left: -200px;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(47,58,145,0.04) 0%, transparent 70%);
-  pointer-events: none;
+.hero__topics { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; margin-top: 15px; font-size: .8125rem;
+  > span { color: #5f6c85; }
+  button { padding: 1px 10px; border: 1px solid #d4dff6; border-radius: 20px; color: #4f6389; background: #ffffffbc; box-shadow: 0 2px 4px #3455a409; font-size: inherit; line-height: 1.5; &:hover { color: $blue; border-color: #9ab7ff; background: white; } }
 }
-.wrap {
-  max-width: 1200px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 1;
+.hero-art { position: relative; align-self: stretch; min-width: 0; }
+.hero-art__atom { position: absolute; top: 47%; left: 52%; width: 90%; max-width: none; height: auto; transform: translate(-50%, -50%); filter: drop-shadow(0 22px 20px #5571cd17); }
+.hero-art__cross { position: absolute; color: white; font-size: 24px; font-weight: 500; &--top { top: -8px; left: 45%; } &--bottom { bottom: 25%; right: 0; font-size: 16px; } }
+.art-label { position: absolute; z-index: 1; display: flex; align-items: center; gap: 9px; padding: 9px 14px 9px 9px; border: 1px solid #fff; border-radius: 11px; color: #29395f; background: linear-gradient(145deg, #ffffffeb, #f3f6ffe0); box-shadow: 0 5px 13px #4973c524, inset 0 0 0 2px #ffffff8c; font-size: .8125rem; font-weight: 500; white-space: nowrap;
+  .resource-icon { width: 28px; height: 28px; border-radius: 8px; svg { width: 19px; height: 19px; } }
+  &--article { top: 5%; left: 4%; transform: rotate(-6deg); }
+  &--sciencedata { top: 21%; right: -2%; transform: rotate(5deg); }
+  &--software { bottom: 16%; left: -2%; transform: rotate(-4deg); }
+  &--facility { right: 0; bottom: 9%; transform: rotate(4deg); }
 }
-
-/* 模块标签："资源" → "亮点" */
-.resources-headline-meta {
-  margin-bottom: 8px;
-  text-align: center;
+.hero-art__caption { position: absolute; bottom: -28px; left: 52%; transform: translateX(-50%); color: #3e69d3; font-size: .75rem; letter-spacing: .15em; white-space: nowrap; }
+.stats-band { position: relative; z-index: 3; margin-top: -3px; }
+.stats-band__inner { display: grid; grid-template-columns: repeat(4, 1fr); width: min(1200px, calc(100% - 64px)); padding: 22px 26px; border: 1px solid #ffffffee; border-radius: 19px; background: linear-gradient(120deg, #ffffffe6, #f7f7ffb3); box-shadow: 0 8px 25px #5076d11a, inset 0 0 0 1px #ffffffa6; backdrop-filter: blur(18px); }
+.stat { display: flex; align-items: center; justify-content: center; gap: 17px; border-right: 1px solid #d4dff1;
+  &:last-child { border: 0; > svg { color: #8263ff; } }
+  > svg { width: 32px; height: 32px; color: #3974ff; stroke-width: 1.7; }
+  div { display: flex; align-items: baseline; flex-wrap: wrap; gap: 3px 12px; }
+  strong { color: #13223f; font-size: 1.65rem; font-weight: 700; line-height: 1.3; letter-spacing: -.035em; }
+  span { color: #69778d; font-size: .875rem; }
 }
-.sec-eyebrow {
-  font-size: 14px;
-  font-weight: 500;
-  color: #999;
-  text-transform: uppercase;
-  letter-spacing: 2px;
+.resource-section { position: relative; padding-block: 44px 46px; }
+.section-heading { position: relative; display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 24px; }
+.eyebrow { margin-bottom: 7px; color: #4a6bd3; font-size: .75rem; font-weight: 500; letter-spacing: .12em; }
+.HomePage h2 { color: #14213e; font-size: 1.75rem; font-weight: 700; letter-spacing: -.035em; line-height: 1.35; }
+.section-intro { margin-top: 7px; color: $muted; font-size: 1rem; line-height: 1.65; }
+.text-link { display: inline-flex; flex-shrink: 0; align-items: center; gap: 10px; color: $blue !important; font-size: .875rem; font-weight: 500; white-space: nowrap; svg { width: 17px; height: 17px; } &:hover { color: #0534b1 !important; text-decoration: underline; text-underline-offset: 4px; } }
+.resource-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 17px; }
+.resource-icon { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 13px; border: 1px solid #ffffffb3; box-shadow: inset 0 1px 3px #ffffffb3;
+  &--article { color: #1966ff; background: linear-gradient(135deg, #deedff, #c7deff); }
+  &--sciencedata { color: #00a388; background: linear-gradient(135deg, #e2fff7, #c9f5ed); }
+  &--software { color: #7d4fff; background: linear-gradient(135deg, #f1eaff, #e2d6ff); }
+  &--facility { color: #b87816; background: linear-gradient(135deg, #fff8e9, #ffebc7); }
 }
-.sec-eyebrow .grad {
-  background: linear-gradient(90deg, $primary, #6c7bcf);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.resource-card { position: relative; display: flex; flex-direction: column; padding: 20px 21px 17px; border: 1px solid #fff; border-radius: 18px; box-shadow: 0 5px 16px #4664b30a, 0 0 0 1px #cfdafa75; background: linear-gradient(135deg, #edf5ffd9, #ffffffc4); transition: transform .2s, box-shadow .2s;
+  &::before { content: ''; position: absolute; inset: 4px; border: 1px solid #ffffffbd; border-radius: 14px; pointer-events: none; }
+  &--sciencedata { background: linear-gradient(135deg, #effcf9e6, #fbfdffd4); }
+  &--software { background: linear-gradient(135deg, #f6f1ffd9, #fcfcffd9); }
+  &--facility { background: linear-gradient(135deg, #fffaf2e0, #fcfaffd4); }
+  &:hover { transform: translateY(-4px); box-shadow: 0 12px 26px #4664b31a, 0 0 0 1px #a6bff1; }
+  h3 { margin-top: 13px; font-size: 1.125rem; font-weight: 650; }
+  > p { flex: 1; margin-top: 7px; color: #58657e; font-size: 1rem; line-height: 1.65; }
 }
-
-/* 标题栏 + 联系邮箱行 */
-.resources-section-title-wrap {
-  text-align: center;
-  margin-bottom: 36px;
-}
-.sec-title {
-  font-size: 30px;
-  font-weight: 800;
-  color: $textDark;
-  margin: 0 0 4px;
-  letter-spacing: 2px;
-}
-.contact-line {
-  font-size: 13px;
-  color: #999;
-  margin: 0;
-  a {
-    color: $primary;
-    text-decoration: underline;
+.resource-card__top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.resource-card__english { max-width: 108px; color: #7c8cad; font-size: .75rem; line-height: 1.5; text-align: right; letter-spacing: .025em; }
+.resource-card__bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 9px; margin-top: 18px; padding-top: 13px; border-top: 1px solid #dce3f085; color: #71809a; font-size: .75rem; strong { color: #425678; font-weight: 600; } }
+.resource-card__count { display: inline-flex; align-items: center; gap: 4px; svg { width: 13px; height: 13px; margin-right: 2px; } }
+.resource-card__action { display: inline-flex; align-items: center; gap: 6px; color: $blue; font-size: .8125rem; font-weight: 500; svg { width: 14px; height: 14px; } }
+.latest-section { position: relative; padding-block: 12px 24px; }
+.latest-section .section-heading { margin-bottom: 17px; }
+.latest-section__motif { position: absolute; right: 9%; bottom: -34px; width: 250px; height: 130px; pointer-events: none;
+  i { position: absolute; width: 108px; height: 96px; border: 1px solid #ffffffb3; border-radius: 9px; transform: skewX(-22deg) rotate(-8deg); background: linear-gradient(140deg, #a1d1ff99, #bdcaff17); box-shadow: inset 0 1px 1px #ffffff8c;
+    &:first-child { left: 12px; top: 22px; background: linear-gradient(135deg, #a1e3ff99, #8cc7ff26); }
+    &:nth-child(2) { left: 66px; top: 8px; background: linear-gradient(140deg, #8cbaffb3, #c6c5ff3b); }
+    &:last-child { left: 114px; top: 35px; background: linear-gradient(140deg, #e8caff9e, #b3b9ff21); }
   }
 }
-
-/* 主面板：左侧文字卡片 + 右侧图片网格 */
-.headlines-panel {
-  display: flex;
-  gap: 28px;
-  align-items: stretch;
-  &--flip {
-    flex-direction: row-reverse;
-  }
-  /* 纯文字面板（无右侧图片时居中） */
-  &--centered {
-    justify-content: center;
-  }
+.latest-toolbar { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 18px; border-bottom: 1px solid #dbe4f3; > .text-link { margin-bottom: 13px; } }
+.latest-tabs { gap: 28px; button { padding-bottom: 12px; } }
+.latest-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 19px; }
+.latest-card { display: flex; flex-direction: column; min-height: 184px; padding: 17px 19px 13px; border: 1px solid #d7e2f5; border-radius: 13px; background: #ffffffb8; box-shadow: 0 5px 17px #3e64b105, inset 0 1px 0 #fff; transition: border-color .2s, box-shadow .2s;
+  &:hover { border-color: #97b4f4; box-shadow: 0 8px 22px #466bb414; h3 { color: $blue; } }
+  h3 { display: -webkit-box; overflow: hidden; margin-top: 11px; color: #192541; font-size: 1rem; font-weight: 650; line-height: 1.5; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 }
-
-/* 左侧：文字卡片 */
-.hl-text-card {
-  flex: 0 0 420px;
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-  /* 居中版（无右侧图片时文字居中） */
-  &--centered {
-    margin: 0 auto;
-    text-align: center;
-    .hl-group-title {
-      justify-content: center;
-    }
-  }
+.latest-card__meta { display: flex; align-items: center; justify-content: space-between; gap: 14px; color: #7c8ba3; font-size: .75rem; }
+.type-tag { overflow: hidden; max-width: 80%; padding: 2px 9px; border-radius: 5px; color: #3967c6; background: #e6eeff; text-overflow: ellipsis; white-space: nowrap;
+  &--sciencedata { color: #258776; background: #e3f6f1; } &--software { color: #8057c4; background: #efe7ff; } &--facility { color: #a47927; background: #fff1d7; }
 }
-.hl-group-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: $textDark;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
-  .news-category-icon {
-    width: 24px;
-    height: 24px;
-    border-radius: 4px;
-    object-fit: cover;
-  }
+.latest-card__abstract { display: -webkit-box; overflow: hidden; margin-top: 8px; color: #758096; font-size: 1rem; line-height: 1.65; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.latest-card__footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 12px; border-top: 1px solid #e2e7f285; color: #8b97ac; font-size: .75rem; > span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; } svg { width: 15px; height: 15px; color: #7395d4; } }
+.latest-card__abstract + .latest-card__footer { margin-top: 12px; }
+.feed-state { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; padding: 25px; text-align: center;
+  > svg { width: 30px; height: 30px; margin-bottom: 12px; color: #7d99bf; } h3 { font-size: 1.125rem; font-weight: 500; } p { margin-top: 8px; color: $muted; font-size: 1rem; }
 }
-.hl-date {
-  font-size: 12px;
-  color: #aaa;
-  margin-bottom: 16px;
+.retry-button { margin-top: 15px; padding: 7px 18px; border: 1px solid #b8ccef; border-radius: 8px; color: $blue; background: #ffffffdb; font-size: .875rem !important; &:hover { border-color: $blue; } }
+.loading-icon { animation: spin 1.4s linear infinite; }
+.mission-section { padding-block: 24px 37px; }
+.mission { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 28px; overflow: hidden; padding: 26px 42px; border: 1px solid #779ce8; border-radius: 17px; background: linear-gradient(90deg, #0d2a61a8, #173e7c0a), url('~@/assets/generated/earth-horizon.webp') center 64% / cover; color: #fff; box-shadow: inset 0 1px 1px #b2c8ff63;
+  .eyebrow { color: #c4d5f4; font-size: .75rem; }
+  h2 { color: #fff; font-size: 1.75rem; }
+  .mission__content > p:not(.eyebrow) { margin-top: 8px; color: #d4dff4; font-size: 1rem; }
 }
-
-/* 序号 + 标题竖排卡片（模块 #1 居中样式） */
-.hl-row-list {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
+.mission__content { max-width: 76%; }
+.mission__tags { display: flex; flex-wrap: wrap; gap: 10px 25px; margin-top: 16px; color: #d5e1f9; font-size: .75rem;
+  span { display: flex; align-items: center; gap: 7px; } svg { width: 16px; height: 16px; color: #9cbdff; border-radius: 50%; background: #195bdd; }
 }
-.hl-card-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  width: 100%;
-  max-width: 520px;
-  padding: 14px 20px;
-  border-bottom: 1px solid #eef1f4;
-  transition: all 0.25s ease;
-  cursor: pointer;
-  text-align: left;
-  &:hover {
-    transform: translateX(4px);
-    background: rgba(47,58,145,0.03);
-    border-radius: 8px;
-    .hl-card-title {
-      color: $primary;
-    }
-  }
+.mission__button { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; gap: 12px; padding: 11px 22px; border: 1px solid #fff; border-radius: 10px; color: #0c42cb !important; background: linear-gradient(180deg, #fff, #dae5ff); box-shadow: 0 4px 14px #081e5c29, inset 0 0 0 2px #ffffff73; font-size: .875rem; font-weight: 600;
+  svg { width: 17px; height: 17px; } &:hover { background: #fff; }
 }
-.hl-card-index {
-  font-size: 13px;
-  font-weight: 800;
-  color: $primary;
-  min-width: 28px;
-  padding-top: 2px;
-  text-align: center;
-  flex-shrink: 0;
+.home-footer { padding-bottom: 20px; }
+.home-footer__top { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 4px 0 22px;
+  nav { display: flex; align-items: center; gap: 36px; color: #586781; font-size: .875rem; a { display: flex; align-items: center; gap: 7px; &:hover { color: $blue; } } svg { width: 16px; height: 16px; } }
 }
-.hl-card-body {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.home-footer__brand { display: flex; align-items: center; gap: 11px; strong { font-size: 1rem; font-weight: 650; letter-spacing: -.025em; } p { margin-top: 0; color: #8996ae; font-size: .75rem; } }
+.home-footer__bottom { display: flex; justify-content: space-between; gap: 20px; padding-top: 13px; border-top: 1px solid #dce4f2; color: #8b97ae; font-size: .75rem; span:last-child { letter-spacing: .05em; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (min-width: 1600px) { .hero__grid { min-height: 535px; } }
+@media (max-width: 1100px) {
+  .page-width { width: calc(100% - 72px); }
+  .hero__grid { gap: 20px; grid-template-columns: 1.1fr 1fr; }
+  .hero h1 { font-size: 2.65rem; }
+  .hero-art__atom { width: 108%; }
+  .art-label { padding: 7px 10px 7px 7px; gap: 6px; font-size: .75rem; }
+  .hero-art__caption { font-size: .625rem; }
+  .search-tabs { gap: 16px; }
+  .resource-grid { gap: 14px; }
+  .resource-card { padding-inline: 18px; }
+  .resource-card__english { font-size: .6875rem; }
+  .resource-card__bottom { gap: 7px; }
+  .stat { gap: 12px; div { gap: 3px 8px; } strong { font-size: 1.5rem; } }
+  .mission { padding-inline: 30px; }
 }
-.hl-card-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: $textDark;
-  margin: 0;
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  transition: color 0.2s;
+@media (max-width: 900px) {
+  .page-width { width: calc(100% - 48px); }
+  .hero__grid { min-height: 495px; grid-template-columns: 1.25fr 1fr; padding-block: 40px 55px; }
+  .hero h1 { font-size: 2.3rem; }
+  .hero-art__atom { width: 125%; left: 51%; }
+  .hero-art__caption { display: none; }
+  .art-label { font-size: .75rem; .resource-icon { width: 25px; height: 25px; } &--article { left: 0; top: 9%; } &--sciencedata { right: -12px; top: 25%; } &--software { left: -4%; bottom: 18%; } &--facility { bottom: 7%; right: -4%; } }
+  .stats-band__inner { width: calc(100% - 32px); padding-inline: 14px; }
+  .stat { gap: 11px; > svg { width: 28px; height: 28px; } div { flex-direction: column; gap: 0; } span { font-size: .8125rem; } }
+  .resource-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  .resource-card__english { max-width: none; font-size: .75rem; }
+  .latest-grid { gap: 13px; }
+  .latest-card { padding-inline: 15px; }
+  .latest-section__motif { right: 0; opacity: .7; }
+  .mission__content { max-width: 70%; }
+  .mission h2 { font-size: 1.5rem; }
+  .mission__button { padding-inline: 16px; }
+  .home-footer__bottom { flex-wrap: wrap; span:last-child { font-size: .6875rem; } }
 }
-.hl-card-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 10px;
-  margin-top: 2px;
+@media (max-width: 700px) {
+  .hero__grid { display: flex; flex-direction: column; align-items: stretch; gap: 0; min-height: 0; padding-block: 32px 26px; }
+  .hero h1 { font-size: 2.5rem; }
+  .hero__eyebrow { margin-bottom: 17px; font-size: .8125rem; }
+  .hero__intro { margin-top: 18px; white-space: normal; }
+  .discovery-search { margin-top: 23px; }
+  .hero__topics { gap: 7px 9px; }
+  .hero-art { display: block; align-self: center; width: min(90%, 390px); height: 300px; margin-top: 22px; }
+  .hero-art__atom { width: 92%; max-width: 320px; top: 50%; left: 50%; }
+  .hero-art__cross--top { left: 46%; top: 3%; }
+  .art-label { padding: 6px 8px; font-size: .75rem; .resource-icon { width: 23px; height: 23px; svg { width: 15px; height: 15px; } } &--article { top: 9%; left: -2%; } &--sciencedata { top: 24%; right: -7%; } &--software { bottom: 25%; left: -6%; } &--facility { bottom: 10%; right: -3%; } }
+  .hero-art__caption { display: block; left: 50%; bottom: -6px; font-size: .5625rem; }
+  .search-tabs { gap: 19px; }
+  .search-field { gap: 9px; height: 55px; padding-left: 12px; button { padding-inline: 16px; } }
+  .stats-band { margin-top: 8px; }
+  .stats-band__inner { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 0; padding: 23px 14px; border-radius: 16px; }
+  .stat { justify-content: center; gap: 13px; &:nth-child(2) { border: 0; } > svg { width: 28px; height: 28px; } strong { font-size: 1.45rem; } span { font-size: .8125rem; } }
+  .resource-section { padding-block: 35px 31px; }
+  .section-heading { flex-wrap: wrap; align-items: flex-start; gap: 13px; margin-bottom: 21px; }
+  .HomePage h2 { font-size: 1.45rem; }
+  .eyebrow { font-size: .6875rem; letter-spacing: .1em; }
+  .section-intro { font-size: 1rem; line-height: 1.65; }
+  .resource-grid { gap: 14px; }
+  .resource-card { padding: 17px 16px 15px; border-radius: 15px; h3 { font-size: 1.0625rem; margin-top: 12px; } > p { line-height: 1.65; } }
+  .resource-card__english { display: none; }
+  .resource-icon { width: 39px; height: 39px; border-radius: 11px; svg { width: 23px; height: 23px; } }
+  .resource-card__bottom { align-items: flex-start; flex-direction: column; gap: 10px; margin-top: 17px; padding-top: 12px; }
+  .resource-card__action { font-size: .875rem; }
+  .latest-section { padding-block: 10px 15px; }
+  .latest-section__motif { display: none; }
+  .latest-toolbar { align-items: flex-end; flex-wrap: wrap; gap: 13px; }
+  .latest-tabs { width: 100%; gap: 24px; }
+  .latest-toolbar > .text-link { margin: 0 0 10px auto; }
+  .latest-grid { grid-template-columns: 1fr; gap: 14px; }
+  .latest-card { min-height: 0; padding: 18px; }
+  .latest-card__abstract { -webkit-line-clamp: 2; }
+  .mission-section { padding-block: 21px 30px; }
+  .mission { display: block; padding: 27px 24px; border-radius: 15px; background-position: 62% center; }
+  .mission__content { max-width: none; }
+  .mission h2 { font-size: 1.45rem; }
+  .mission__tags { gap: 10px 15px; }
+  .mission__button { margin-top: 23px; padding: 10px 17px; }
+  .home-footer__top { align-items: flex-start; flex-direction: column; gap: 22px; nav { width: 100%; justify-content: space-between; gap: 16px; font-size: .8125rem; } }
+  .home-footer__bottom { justify-content: flex-start; gap: 8px 20px; font-size: .6875rem; span:last-child { width: 100%; } }
 }
-.hl-card-tag {
-  display: inline-block;
-  padding: 1px 8px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 500;
-  background: #eef2ff;
-  color: #2F3A91;
-  &--green {
-    background: #e4f7e9;
-    color: #0c833e;
-  }
-  &--orange {
-    background: #fff3e0;
-    color: #b85c00;
-  }
+@media (max-width: 380px) {
+  .page-width { width: calc(100% - 32px); }
+  .hero h1 { font-size: 2.15rem; }
+  .search-field { > svg { display: none; } button { padding-inline: 12px; } }
+  .search-tabs button, .latest-tabs button { svg { display: none; } }
+  .resource-card { padding-inline: 13px; }
+  .resource-card__count { font-size: .6875rem; gap: 3px; svg { display: none; } }
+  .stat { gap: 9px; }
 }
-.hl-card-meta-item {
-  font-size: 11px;
-  color: #8e96ab;
-  white-space: nowrap;
-}
-.hl-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  flex: 1;
-  li {
-    padding: 10px 0;
-    border-bottom: 1px solid #f3f3f3;
-    font-size: 14px;
-    line-height: 1.6;
-    color: $textDark;
-    cursor: pointer;
-    transition: color 0.15s;
-    &:hover {
-      color: $primary;
-    }
-    &:last-child {
-      border-bottom: none;
-    }
-  }
-}
-.site-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 14px;
-  padding: 10px 24px;
-  background: $primary;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.15s;
-  align-self: flex-start;
-  &:hover {
-    background: darken($primary, 8%);
-    transform: translateX(2px);
-  }
-  svg {
-    transition: transform 0.2s;
-  }
-  &:hover svg {
-    transform: translateX(3px);
-  }
-  /* 居中版按钮 */
-  &--centered {
-    align-self: center;
-  }
-}
-
-/* 右侧：图片网格 */
-.hl-figures {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  align-content: start;
-}
-.figure-card {
-  position: relative;
-  border-radius: 10px;
-  overflow: hidden;
-  cursor: pointer;
-  &:first-child {
-    grid-column: 1 / -1;
-  }
-  &:first-child .figure-img {
-    height: 220px;
-  }
-  &:hover .figure-img {
-    transform: scale(1.04);
-  }
-}
-.figure-img {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.3s;
-}
-.figure-cap {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 16px 14px;
-  background: linear-gradient(transparent, rgba(0,0,0,0.6));
-}
-.cap-txt {
-  font-size: 14px;
-  font-weight: 600;
-  color: #fff;
-  letter-spacing: 0.5px;
-}
-
-
-
-/* ===================== 页脚 ===================== */
-.Footer__section {
-  background: #1b2a4a;
-  color: rgba(255,255,255,0.8);
-  padding: 48px 24px 32px;
-}
-.Footer__inner {
-  max-width: 1000px;
-  margin: 0 auto;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 32px 60px;
-  justify-content: space-between;
-}
-.Footer__logo {
-  font-size: 22px;
-  font-weight: 800;
-  color: #fff;
-  margin: 0 0 4px;
-  letter-spacing: 1px;
-}
-.Footer__orgName {
-  font-size: 13px;
-  color: rgba(255,255,255,0.6);
-  margin: 0;
-}
-.Footer__contact {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.Footer__contactTitle {
-  font-size: 15px;
-  font-weight: 700;
-  color: #fff;
-  margin: 0 0 2px;
-}
-.Footer__contactItem {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: rgba(255,255,255,0.7);
-  svg {
-    flex-shrink: 0;
-    opacity: 0.5;
-  }
-  a {
-    color: rgba(255,255,255,0.7);
-    text-decoration: none;
-    &:hover {
-      color: #fff;
-      text-decoration: underline;
-    }
-  }
-}
-.Footer__copyright {
-  width: 100%;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  padding-top: 20px;
-  margin-top: 8px;
-  font-size: 13px;
-  color: rgba(255,255,255,0.4);
-  text-align: center;
-}
-
-/* ===================== 动画 ===================== */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-@keyframes fadeInRight {
-  from {
-    opacity: 0;
-    transform: translateX(-12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-/* ===================== 响应式适配 ===================== */
-@media (max-width: 1200px) {
-  /* 中等宽度收窄搜索框，避免压到右侧装饰图 */
-  .Hero__search {
-    max-width: 560px;
-  }
-}
-@media (max-width: 1024px) {
-  .Hero {
-    /* 平板端保持 602px 首屏高度，内容仍垂直居中 */
-    padding: 0;
-  }
-  .Hero__content {
-    max-width: 100%;
-  }
-  .Hero__art {
-    display: none;
-  }
-  .Hero__title {
-    font-size: 48px;
-  }
-  .Hero__stats {
-    gap: 20px;
-  }
-  .Resources__grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .headlines-panel {
-    flex-direction: column;
-  }
-  .hl-text-card {
-    flex: none;
-    width: 100%;
-  }
-}
-@media (max-width: 768px) {
-  .Hero {
-    height: auto;
-    min-height: 0;
-    padding: 44px 0 40px;
-    background-position: 70% center;
-  }
-  .Hero__inner {
-    padding: 0 24px;
-  }
-  .Hero__content {
-    max-width: 100%;
-  }
-  .Hero__title { font-size: 34px; }
-  .Hero__subtitle { font-size: 16px; margin-bottom: 26px; }
-  .Hero__search {
-    height: 50px;
-    padding-left: 16px;
-  }
-  .Hero__stats {
-    flex-wrap: wrap;
-    gap: 16px 20px;
-    margin-top: 32px;
-  }
-  .Hero__statDivider { display: none; }
-  .Resources__grid { grid-template-columns: 1fr; }
-  .Section__header h2 { font-size: 22px; }
+@media (prefers-reduced-motion: reduce) {
+  .HomePage { scroll-behavior: auto; *, *::before, *::after { animation: none !important; transition: none !important; } }
 }
 </style>
